@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { Heart, Gift, Share2, ArrowRight, ShieldCheck, CreditCard, Headset } from 'lucide-react';
@@ -8,6 +8,7 @@ import './index.css';
 import wordmark from './assets/Horizontal Wordmark with Emblem.png';
 import emblem from './assets/Brand Emblem.png';
 import rakhiBg from './assets/rakhi-bg.jpg';
+import { toBlob } from 'html-to-image';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8081';
 type Step = 'landing' | 'form' | 'success';
@@ -25,6 +26,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [cardData, setCardData] = useState<CardData | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   
   const [formData, setFormData] = useState({
     purchaserName: '',
@@ -112,9 +115,60 @@ export default function App() {
   };
 
   const shareUrl = cardData ? `${window.location.origin}/g/${cardData.shareToken}` : '';
-  const whatsappMsg = cardData
-    ? `Happy Raksha Bandhan ❤️%0A%0AI got you a ₹300 Pop O'Bob gift!%0AEnjoy your boba 🧋%0A%0AYour Gift Card:%0A${cardData.publicCode}%0A%0AValid at all Pop O'Bob stores.`
-    : '';
+  
+  const handleWhatsAppShare = async () => {
+    if (!cardRef.current || !cardData) return;
+    setIsSharing(true);
+    
+    try {
+      // Capture the card as an image using html-to-image (better support for modern CSS)
+      const blob = await toBlob(cardRef.current, {
+        cacheBust: true,
+        pixelRatio: 2, // High resolution
+        backgroundColor: '#4a0000', // Fallback background
+      });
+
+      if (!blob) throw new Error("Failed to generate image");
+
+      const storeDetails = `*Redeemable at all Pop O'Bob stores!* 🧋\n\n📍 *Film Nagar*: https://share.google/9Q99ewCLW9I2O7BSp\n📍 *Khajaguda*: https://share.google/XO37ShCse7n7hPTR7\n📍 *Sharath City Mall*: https://share.google/ksM41JyUeS5clpe8p\n📍 *In Orbit Mall*: https://share.google/Zs9ksUOh2GhzHyr3t\n📍 *Flip Side*: https://share.google/oGTJe61CzWi2Cztfz\n📍 *Kothaguda X Roads*`;
+      
+      const shareText = `Happy Raksha Bandhan ❤️\n\nI got you a ₹${cardData.balance} Pop O'Bob gift!\nEnjoy your boba 🧋\n\n*Your Gift Card Code:* ${cardData.publicCode}\n\n${storeDetails}`;
+
+      const file = new File([blob], `pop-o-bob-giftcard-${cardData.publicCode}.png`, { type: 'image/png' });
+
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        // Mobile native share (supports WhatsApp with image + text)
+        try {
+          await navigator.share({
+            files: [file],
+            title: "Pop O'Bob Gift Card",
+            text: shareText,
+          });
+        } catch (err) {
+          console.error("User cancelled share or share failed", err);
+        }
+      } else {
+        // Fallback for desktop: download image and open WhatsApp web
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = file.name;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        alert("We've downloaded the Gift Card image for you! Attach it to your WhatsApp message. We'll open WhatsApp Web now.");
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+      }
+
+    } catch (err) {
+      console.error("Error capturing card:", err);
+      alert("Failed to generate gift card image. Please try copying the code instead.");
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   // ─── ANIMATION VARIANTS ───
   const fadeUp: Variants = {
@@ -337,7 +391,7 @@ export default function App() {
               </motion.div>
 
               {/* Digital Gift Card Presentation */}
-              <motion.div variants={fadeUp} className="relative bg-gradient-to-br from-red-900 via-red-950 to-[#310000] border-2 border-red-800/50 text-cream rounded-[2rem] p-8 overflow-hidden shadow-2xl mb-8 group">
+              <motion.div ref={cardRef} variants={fadeUp} className="relative bg-gradient-to-br from-red-900 via-red-950 to-[#310000] border-2 border-red-800/50 text-cream rounded-[2rem] p-8 overflow-hidden shadow-2xl mb-8 group">
                 {/* Gloss/Shimmer effect overlay */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 z-20"></div>
                 
@@ -373,14 +427,13 @@ export default function App() {
 
               {/* Action Buttons */}
               <motion.div variants={fadeUp} className="space-y-4">
-                <a
-                  href={`https://wa.me/?text=${whatsappMsg}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full bg-[#25D366] text-white font-bold py-4 rounded-full hover:bg-green-600 transition-all shadow-lg hover:shadow-green-500/20 flex items-center justify-center gap-3 text-lg"
+                <button
+                  onClick={handleWhatsAppShare}
+                  disabled={isSharing}
+                  className="w-full bg-[#25D366] text-white font-bold py-4 rounded-full hover:bg-green-600 transition-all shadow-lg hover:shadow-green-500/20 flex items-center justify-center gap-3 text-lg disabled:opacity-70 disabled:cursor-wait"
                 >
-                  <Share2 size={20} /> Share on WhatsApp
-                </a>
+                  <Share2 size={20} /> {isSharing ? 'Generating Image...' : 'Share on WhatsApp'}
+                </button>
 
                 <div className="grid grid-cols-2 gap-4">
                   <button
