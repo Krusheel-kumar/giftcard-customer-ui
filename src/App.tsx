@@ -1,0 +1,408 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import type { Variants } from 'framer-motion';
+import { Heart, Gift, Share2, ArrowRight, ShieldCheck, CreditCard, Headset } from 'lucide-react';
+import './index.css';
+
+// Brand Assets (using standard imports from assets folder)
+import wordmark from './assets/Horizontal Wordmark with Emblem.png';
+import emblem from './assets/Brand Emblem.png';
+import rakhiBg from './assets/rakhi-bg.jpg';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+type Step = 'landing' | 'form' | 'success';
+
+interface CardData {
+  publicCode: string;
+  shareToken: string;
+  recipientName: string;
+  personalMessage: string;
+  balance: number;
+}
+
+export default function App() {
+  const [step, setStep] = useState<Step>('landing');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [cardData, setCardData] = useState<CardData | null>(null);
+  
+  const [formData, setFormData] = useState({
+    purchaserName: '',
+    purchaserMobile: '',
+    recipientName: '',
+    recipientMobile: '',
+    personalMessage: '',
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError('');
+  };
+
+  const handlePurchase = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      // Step 1: Call backend to create Razorpay order + PENDING card
+      const res = await fetch(`${API}/api/gift-cards/purchase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to initiate purchase');
+
+      // Step 2: Open Razorpay checkout
+      const options = {
+        key: data.razorpayKeyId,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Pop O'Bob",
+        description: "Raksha Bandhan Digital Gift",
+        order_id: data.razorpayOrderId,
+        prefill: {
+          name: formData.purchaserName,
+          contact: formData.purchaserMobile,
+        },
+        theme: { color: '#D4AF37' },
+        handler: async (response: any) => {
+          // Step 3: Verify payment on backend
+          try {
+            const verifyRes = await fetch(`${API}/api/gift-cards/payment/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok) throw new Error(verifyData.message || 'Verification failed');
+
+            setCardData({
+              publicCode: verifyData.publicCode,
+              shareToken: verifyData.shareToken,
+              recipientName: verifyData.recipientName,
+              personalMessage: verifyData.personalMessage,
+              balance: verifyData.balance,
+            });
+            setStep('success');
+          } catch (err: any) {
+            setError('Payment verified but activation failed. Please contact support.');
+          }
+        },
+      };
+
+      // @ts-ignore
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', (resp: any) => {
+        setError('Payment failed: ' + resp.error.description);
+        setLoading(false);
+      });
+      rzp.open();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const shareUrl = cardData ? `${window.location.origin}/g/${cardData.shareToken}` : '';
+  const whatsappMsg = cardData
+    ? `Happy Raksha Bandhan ❤️%0A%0AI got you a ₹300 Pop O'Bob gift!%0AEnjoy your boba 🧋%0A%0AYour Gift Card:%0A${cardData.publicCode}%0A%0AValid at all Pop O'Bob stores.`
+    : '';
+
+  // ─── ANIMATION VARIANTS ───
+  const fadeUp: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.4 } }
+  };
+
+  const staggerContainer: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 }
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-cream font-sans text-richBlack overflow-x-hidden selection:bg-gold selection:text-richBlack relative">
+      
+      {/* ─── STICKY HEADER ─── */}
+      <header className="fixed top-0 left-0 w-full z-50 bg-cream/80 backdrop-blur-md border-b border-gold/10">
+        <div className="max-w-5xl mx-auto px-6 h-28 md:h-32 flex items-center justify-between">
+          <img src={wordmark} alt="Pop O'Bob" className="h-24 md:h-32 object-contain origin-left scale-110 md:scale-125" />
+          <div className="flex items-center gap-4">
+            <a 
+              href="mailto:support@popobob.com" 
+              className="flex items-center gap-2 text-sm font-semibold text-richBlack hover:text-gold transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100"
+            >
+              <Headset size={18} />
+              <span className="hidden sm:inline">Support</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content Area (padded for header) */}
+      <main className="pt-32 md:pt-40 min-h-screen flex flex-col items-center justify-center pb-12">
+        <AnimatePresence mode="wait">
+
+          {/* ─── LANDING SCREEN ─── */}
+          {step === 'landing' && (
+            <motion.div 
+              key="landing"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full max-w-5xl px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center mt-12 md:mt-0"
+            >
+              {/* Left: Copy & CTA */}
+              <motion.div variants={fadeUp} className="text-center md:text-left space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/20 text-gold text-sm font-semibold tracking-widest uppercase">
+                  <Heart size={14} /> Limited Edition
+                </div>
+                
+                <h1 className="font-serif text-5xl md:text-6xl font-bold leading-tight">
+                  The Perfect Pour of <br className="hidden md:block"/>
+                  <span className="italic text-gold">Affection.</span>
+                </h1>
+                
+                <p className="text-lg text-richBlack/70 max-w-lg mx-auto md:mx-0">
+                  This Rakhi, give the gift of handcrafted moments. Surprise your sibling with their favorite boba, without breaking the bank.
+                </p>
+
+                {/* Offer Highlight Box */}
+                <div className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100 flex items-center justify-between max-w-sm mx-auto md:mx-0 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full transition-transform group-hover:scale-110"></div>
+                  <div>
+                    <p className="text-sm text-gray-500 uppercase tracking-widest font-semibold mb-1">You Pay</p>
+                    <p className="text-3xl font-bold">₹200</p>
+                  </div>
+                  <div className="h-12 w-[1px] bg-gray-200"></div>
+                  <div className="text-right">
+                    <p className="text-sm text-gold uppercase tracking-widest font-semibold mb-1">They Get</p>
+                    <p className="text-3xl font-bold text-gold">₹300</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setStep('form')}
+                  className="w-full md:w-auto bg-richBlack text-cream px-10 py-5 rounded-full font-bold text-lg hover:bg-black transition-all shadow-2xl hover:shadow-gold/20 flex items-center justify-center gap-3 mx-auto md:mx-0 group"
+                >
+                  Send a Gift <ArrowRight className="transition-transform group-hover:translate-x-1" />
+                </button>
+              </motion.div>
+
+              {/* Right: Premium Imagery & How it Works */}
+              <motion.div variants={fadeUp} className="relative">
+                <div className="aspect-square md:aspect-[4/5] bg-white rounded-[2rem] shadow-2xl border border-white/50 p-8 flex flex-col justify-center relative overflow-hidden">
+                  <img src={emblem} alt="Emblem watermark" className="absolute -bottom-10 -right-10 w-64 opacity-5 pointer-events-none" />
+                  
+                  <h3 className="font-serif text-3xl font-bold text-center mb-10 relative z-10">How It Works</h3>
+                  
+                  <div className="space-y-8 relative z-10">
+                    <div className="flex gap-4 items-start">
+                      <div className="w-12 h-12 rounded-full bg-gold/10 text-gold flex items-center justify-center shrink-0">
+                        <Gift size={24} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-lg">1. Personalize</h4>
+                        <p className="text-gray-600 text-sm mt-1">Add your sibling's name and a heartfelt message.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 items-start">
+                      <div className="w-12 h-12 rounded-full bg-gold/10 text-gold flex items-center justify-center shrink-0">
+                        <CreditCard size={24} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-lg">2. Secure Checkout</h4>
+                        <p className="text-gray-600 text-sm mt-1">Pay just ₹200 securely via Razorpay.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 items-start">
+                      <div className="w-12 h-12 rounded-full bg-gold/10 text-gold flex items-center justify-center shrink-0">
+                        <Share2 size={24} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-lg">3. Share the Joy</h4>
+                        <p className="text-gray-600 text-sm mt-1">Instantly WhatsApp the ₹300 digital card to them.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* ─── FORM SCREEN ─── */}
+          {step === 'form' && (
+            <motion.div 
+              key="form"
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full max-w-xl px-4"
+            >
+              <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+                {/* Form Header */}
+                <div className="bg-richBlack text-cream p-8 relative overflow-hidden">
+                  <img src={emblem} alt="Emblem" className="absolute -top-10 -right-10 w-48 opacity-10 pointer-events-none" />
+                  <h2 className="font-serif text-3xl font-bold mb-2">Who is this for?</h2>
+                  <p className="text-cream/70 font-light">Let's craft the perfect gift for your sibling.</p>
+                </div>
+
+                <form onSubmit={handlePurchase} className="p-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Your Name</label>
+                      <input required name="purchaserName" value={formData.purchaserName} onChange={handleInputChange}
+                        placeholder="Rahul" className="w-full bg-gray-50 px-5 py-4 rounded-xl border border-transparent focus:bg-white focus:border-gold outline-none transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Your Mobile</label>
+                      <input required name="purchaserMobile" value={formData.purchaserMobile} onChange={handleInputChange}
+                        placeholder="9876543210" type="tel" className="w-full bg-gray-50 px-5 py-4 rounded-xl border border-transparent focus:bg-white focus:border-gold outline-none transition-all" />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-6 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gold uppercase tracking-widest flex items-center gap-2">
+                          <Heart size={12}/> Their Name
+                        </label>
+                        <input required name="recipientName" value={formData.recipientName} onChange={handleInputChange}
+                          placeholder="Priya" className="w-full bg-gray-50 px-5 py-4 rounded-xl border border-transparent focus:bg-white focus:border-gold outline-none transition-all" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Their Mobile (Optional)</label>
+                        <input name="recipientMobile" value={formData.recipientMobile} onChange={handleInputChange}
+                          placeholder="For SMS backup" type="tel" className="w-full bg-gray-50 px-5 py-4 rounded-xl border border-transparent focus:bg-white focus:border-gold outline-none transition-all" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">A Heartfelt Message</label>
+                      <textarea name="personalMessage" value={formData.personalMessage} onChange={handleInputChange}
+                        rows={3} placeholder="Happy Rakhi! Can't wait to grab some boba with you soon ❤️"
+                        className="w-full bg-gray-50 px-5 py-4 rounded-xl border border-transparent focus:bg-white focus:border-gold outline-none transition-all resize-none" />
+                    </div>
+                  </div>
+
+                  {error && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100 flex gap-3 items-center">
+                      <ShieldCheck size={20} className="shrink-0" /> {error}
+                    </motion.div>
+                  )}
+
+                  <div className="pt-4 flex flex-col-reverse md:flex-row gap-4 md:items-center">
+                    <button type="button" onClick={() => setStep('landing')}
+                      className="text-gray-500 font-semibold hover:text-black py-4 px-6 transition-colors md:w-1/3 text-center">
+                      Go Back
+                    </button>
+                    
+                    <button type="submit" disabled={loading}
+                      className="bg-gold text-richBlack font-bold py-4 px-8 rounded-full hover:bg-yellow-500 transition-all shadow-xl hover:shadow-gold/30 md:w-2/3 flex items-center justify-center gap-2">
+                      {loading ? 'Securely Processing...' : 'Pay ₹200 to Gift ₹300'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ─── SUCCESS SCREEN ─── */}
+          {step === 'success' && cardData && (
+            <motion.div 
+              key="success"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+              className="w-full max-w-md px-4"
+            >
+              <motion.div variants={fadeUp} className="text-center mb-8">
+                <h2 className="font-serif text-4xl font-bold text-richBlack mb-2">Beautifully Done.</h2>
+                <p className="text-gray-600">Your gift is ready to be shared with {cardData.recipientName || 'your sibling'}.</p>
+              </motion.div>
+
+              {/* Digital Gift Card Presentation */}
+              <motion.div variants={fadeUp} className="relative bg-gradient-to-br from-red-900 via-red-950 to-[#310000] border-2 border-red-800/50 text-cream rounded-[2rem] p-8 overflow-hidden shadow-2xl mb-8 group">
+                {/* Gloss/Shimmer effect overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 z-20"></div>
+                
+                {/* Rakhi Background Watermark */}
+                <img src={rakhiBg} alt="Rakhi Background" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] max-w-none opacity-[0.15] mix-blend-screen pointer-events-none z-0" />
+
+                <img src={emblem} alt="Watermark" className="absolute -bottom-16 -right-16 w-64 opacity-5 pointer-events-none z-10" />
+
+                <div className="flex justify-between items-start mb-8 relative z-10">
+                  <div>
+                    <p className="text-[10px] tracking-widest text-gold uppercase mb-1">Pop O'Bob Exclusive</p>
+                    <p className="font-serif text-2xl">Rakhi Gift Card</p>
+                  </div>
+                  <Gift className="text-gold" size={32} />
+                </div>
+
+                <div className="mb-10 relative z-10">
+                  <p className="text-sm text-cream/60 mb-1">For</p>
+                  <p className="text-2xl font-bold font-serif">{cardData.recipientName || 'Friend'}</p>
+                </div>
+
+                <div className="flex justify-between items-end relative z-10">
+                  <div>
+                    <p className="text-sm text-cream/60 mb-1">Value</p>
+                    <p className="text-4xl font-light text-gold tracking-tight">₹{cardData.balance}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-cream/60 uppercase tracking-widest mb-1">Card Code</p>
+                    <p className="font-mono text-lg tracking-widest text-white">{cardData.publicCode}</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Action Buttons */}
+              <motion.div variants={fadeUp} className="space-y-4">
+                <a
+                  href={`https://wa.me/?text=${whatsappMsg}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-[#25D366] text-white font-bold py-4 rounded-full hover:bg-green-600 transition-all shadow-lg hover:shadow-green-500/20 flex items-center justify-center gap-3 text-lg"
+                >
+                  <Share2 size={20} /> Share on WhatsApp
+                </a>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={() => navigator.clipboard.writeText(cardData.publicCode)}
+                    className="w-full bg-white border border-gray-200 text-richBlack font-semibold py-3 rounded-xl hover:bg-gray-50 transition-all"
+                  >
+                    Copy Code
+                  </button>
+
+                  <button
+                    onClick={() => navigator.clipboard.writeText(shareUrl)}
+                    className="w-full bg-white border border-gray-200 text-richBlack font-semibold py-3 rounded-xl hover:bg-gray-50 transition-all"
+                  >
+                    Copy Link
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+
+        </AnimatePresence>
+      </main>
+    </div>
+  );
+}
