@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Variants } from 'framer-motion';
-import { ArrowRight, ShieldCheck, Ticket, Copy, CheckCircle2, Share2, MapPin, Gift, Download, Sparkles } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Copy, CheckCircle2, Share2, MapPin, Gift, Download } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import './index.css';
 
@@ -348,7 +348,7 @@ export default function App() {
                 <form onSubmit={handleVerifyOtp} className="space-y-8">
                   <div className="flex gap-4 justify-center">
                     {otp.map((digit, index) => (
-                      <input key={index} ref={el => inputRefs.current[index] = el} type="text" maxLength={1} value={digit}
+                      <input key={index} ref={el => { inputRefs.current[index] = el; }} type="text" maxLength={1} value={digit}
                         onChange={e => handleOtpChange(index, e.target.value)} onKeyDown={e => handleOtpKeyDown(index, e)}
                         className="w-14 h-16 text-center text-3xl font-black bg-white border-2 border-gray-100 rounded-2xl focus:border-[#710000] focus:ring-4 focus:ring-[#710000]/10 outline-none shadow-sm transition-all text-[#710000]" />
                     ))}
