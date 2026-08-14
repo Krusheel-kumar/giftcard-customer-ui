@@ -64,6 +64,14 @@ export default function App() {
       if (!res.ok) throw new Error(data.message || 'Failed to claim offer');
 
       // 2. Initialize MSG91 Configuration
+      const isLocalTest = window.location.hostname === 'localhost';
+      if (isLocalTest) {
+        setStep('otp');
+        setTimeout(() => inputRefs.current[0]?.focus(), 100);
+        setLoading(false);
+        return;
+      }
+
       let formattedPhone = phoneNumber.replace('+', '');
       if (!formattedPhone.startsWith('91')) formattedPhone = '91' + formattedPhone;
 
@@ -121,6 +129,31 @@ export default function App() {
     }
     setError('');
     setLoading(true);
+
+    const isLocalTest = window.location.hostname === 'localhost';
+    if (isLocalTest) {
+      if (otpCode !== '1234') {
+        setError('Invalid Test OTP. Use 1234.');
+        setLoading(false);
+        return;
+      }
+      try {
+        const verifyRes = await fetch(`${API}/api/bogo/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobileNumber: phoneNumber, token: '1234' }),
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok) throw new Error(verifyData.message || 'Verification failed');
+        setBogoCode(verifyData.code);
+        setStep('success');
+      } catch (err: any) {
+        setError(err.message || 'Failed to verify local OTP.');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     try {
       // Call MSG91 to verify the OTP entered
@@ -230,9 +263,9 @@ export default function App() {
       <div className="fixed top-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-[#710000]/10 to-transparent rounded-full blur-[120px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-gradient-to-tr from-gold/15 to-transparent rounded-full blur-[120px] pointer-events-none z-0" />
 
-      <header className="absolute top-0 left-0 w-full z-50 bg-transparent">
-        <div className="max-w-5xl mx-auto px-6 h-24 md:h-32 flex items-center justify-center">
-          <img src={wordmark} alt="Pop O'Bob" className="h-24 md:h-32 object-contain scale-125 md:scale-150 drop-shadow-2xl hover:scale-150 transition-transform duration-700" />
+      <header className="absolute top-0 left-0 w-full z-50 bg-transparent pt-4">
+        <div className="max-w-5xl mx-auto px-6 h-20 md:h-28 flex items-center justify-center">
+          <img src={wordmark} alt="Pop O'Bob" className="h-20 md:h-28 object-contain scale-110 md:scale-125 drop-shadow-2xl hover:scale-125 transition-transform duration-700" />
         </div>
       </header>
 
@@ -363,7 +396,7 @@ export default function App() {
           )}
 
           {step === 'success' && (
-            <motion.div key="success" variants={fadeUp} initial="hidden" animate="visible" className="w-full max-w-md px-4 relative z-10">
+            <motion.div key="success" variants={fadeUp} initial="hidden" animate="visible" className="w-full max-w-md px-4 relative z-10 pt-12">
               <div className="text-center mb-8">
                 <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#710000] mb-3">Happy Rakhi! 🎉</h2>
                 <p className="text-gray-700 font-medium px-4">Your beautiful Rakhi Gift Card is ready to be shared with your sibling.</p>
@@ -388,9 +421,9 @@ export default function App() {
                 {/* Top Section */}
                 <div className="flex justify-between items-start relative z-10">
                   <div>
-                    <p className="text-[10px] text-gold tracking-[0.15em] font-medium uppercase mb-1">POP O'BOB EXCLUSIVE</p>
+                    <p className="text-[10px] text-gold tracking-[0.15em] font-bold uppercase mb-1">POP O'BOB FESTIVE</p>
                     <h3 className="font-serif text-4xl font-medium text-cream tracking-wide">Gift Card</h3>
-                    <p className="font-serif text-lg font-medium text-cream/90 tracking-wide mt-1">Rakhi Edition</p>
+                    <p className="inline-block px-3 py-1 bg-[#3a0000]/60 text-gold border border-gold/40 text-[10px] font-bold tracking-[0.15em] uppercase rounded-full mt-2 shadow-sm backdrop-blur-sm">Rakhi Edition</p>
                   </div>
                   <Gift className="text-gold w-8 h-8" strokeWidth={1.5} />
                 </div>
@@ -404,12 +437,15 @@ export default function App() {
                 </div>
 
                 {/* Bottom Section: Offer and Code */}
-                <div className="flex justify-end items-end relative z-10 w-full">
-                  <div className="text-right bg-black/20 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/5">
-                    <p className="text-cream/70 text-[10px] tracking-[0.2em] uppercase mb-1 font-medium">CARD CODE</p>
-                    <p className="font-mono text-xl font-bold text-white tracking-widest leading-none">
-                      {bogoCode || 'BOGO-XXXX'}
-                    </p>
+                <div className="flex justify-end items-end relative z-10 w-full mt-2">
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="text-right bg-black/40 px-5 py-3 rounded-2xl backdrop-blur-md border border-white/10 w-full shadow-2xl">
+                      <p className="text-cream/80 text-[11px] tracking-[0.25em] uppercase mb-1.5 font-bold">CARD CODE</p>
+                      <p className="font-mono text-[22px] font-bold text-white tracking-widest leading-none drop-shadow-md">
+                        {bogoCode || 'BOGO-XXXX'}
+                      </p>
+                    </div>
+                    <p className="text-gold text-[8px] md:text-[9px] uppercase tracking-[0.15em] font-bold mr-2 text-right">Offer valid from 25th to 31st Aug</p>
                   </div>
                 </div>
               </div>
