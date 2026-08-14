@@ -263,9 +263,9 @@ export default function App() {
       <div className="fixed top-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-[#710000]/10 to-transparent rounded-full blur-[120px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-gradient-to-tr from-gold/15 to-transparent rounded-full blur-[120px] pointer-events-none z-0" />
 
-      <header className="absolute top-0 left-0 w-full z-50 bg-transparent pt-4">
+      <header className="absolute top-0 left-0 w-full z-50 bg-transparent pt-1 md:pt-4">
         <div className="max-w-5xl mx-auto px-6 h-20 md:h-28 flex items-center justify-center">
-          <img src={wordmark} alt="Pop O'Bob" className="h-20 md:h-28 object-contain scale-110 md:scale-125 drop-shadow-2xl hover:scale-125 transition-transform duration-700" />
+          <img src={wordmark} alt="Pop O'Bob" className="h-16 md:h-28 object-contain scale-110 md:scale-125 drop-shadow-2xl hover:scale-125 transition-transform duration-700" />
         </div>
       </header>
 
@@ -278,11 +278,11 @@ export default function App() {
               {/* Hero Image - Flexes to dynamically fill all available space */}
               <div className="relative w-full flex-1 z-0 overflow-hidden bg-[#D1BCA6]">
                 
-                {/* Main Image, seamlessly filling the container */}
-                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute inset-0 w-full h-full object-cover object-[center_top]" />
+                {/* Main Image, shifted down slightly to create space for logo */}
+                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute top-12 left-0 w-full h-[calc(100%-3rem)] object-cover object-[center_top]" />
                 
                 {/* Smooth blend gradient at the top for the logo */}
-                <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[#D1BCA6] via-[#D1BCA6]/60 to-transparent z-10 pointer-events-none" />
+                <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[#D1BCA6] via-[#D1BCA6]/80 to-transparent z-10 pointer-events-none" />
                 
                 {/* Cinematic gradient at the bottom to blend into the card */}
                 <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#FDFBF7] via-[#FDFBF7]/90 to-transparent z-10 pointer-events-none" />
