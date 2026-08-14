@@ -269,17 +269,17 @@ export default function App() {
         </div>
       </header>
 
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] w-full pt-20">
+      <main className="relative z-10 flex flex-col items-center justify-center min-h-[100svh] w-full pt-20">
         <AnimatePresence mode="wait">
           
           {step === 'landing' && (
-            <motion.div key="landing" variants={fadeUp} initial="hidden" animate="visible" exit="exit" className="fixed inset-0 w-full h-[100dvh] z-40 flex flex-col text-center bg-[#FDFBF7]">
+            <motion.div key="landing" variants={fadeUp} initial="hidden" animate="visible" exit="exit" className="fixed inset-0 w-full h-[100svh] z-40 flex flex-col text-center bg-[#FDFBF7]">
               
               {/* Hero Image - Flexes to dynamically fill all available space */}
               <div className="relative w-full flex-1 z-0 overflow-hidden bg-[#D1BCA6]">
                 
-                {/* Main Image, shifted down slightly to create space for logo and zoomed in slightly */}
-                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute top-12 left-0 w-full h-[calc(100%-3rem)] object-cover object-[center_top] scale-[1.15] origin-top" />
+                {/* Main Image, shifted down slightly to create space for logo */}
+                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute top-12 left-0 w-full h-[calc(100%-3rem)] object-cover object-center" />
                 
                 {/* Smooth blend gradient at the top for the logo */}
                 <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[#D1BCA6] via-[#D1BCA6]/80 to-transparent z-10 pointer-events-none" />
