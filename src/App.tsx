@@ -278,8 +278,8 @@ export default function App() {
               {/* Hero Image - Flexes to dynamically fill all available space */}
               <div className="relative w-full flex-1 z-0 overflow-hidden bg-[#D1BCA6]">
                 
-                {/* Main Image, shifted down slightly to create space for logo */}
-                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute top-12 left-0 w-full h-[calc(100%-3rem)] object-cover object-[center_top]" />
+                {/* Main Image, shifted down slightly to create space for logo and zoomed in slightly */}
+                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute top-12 left-0 w-full h-[calc(100%-3rem)] object-cover object-[center_top] scale-[1.15] origin-top" />
                 
                 {/* Smooth blend gradient at the top for the logo */}
                 <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[#D1BCA6] via-[#D1BCA6]/80 to-transparent z-10 pointer-events-none" />
