@@ -176,14 +176,14 @@ export default function App() {
       
       const shareData = {
         title: "Pop O'Bob BOGO Code",
-        text: `Hey! Here's my Buy 1 Get 1 FREE code for Pop O'Bob! Redeemable at the Film Nagar outlet. https://goo.gl/maps/popobob`,
+        text: `Hey! Here's my Buy 1 Get 1 FREE code for Pop O'Bob Festive! Redeemable at the Film Nagar outlet. https://goo.gl/maps/popobob`,
         files: [file]
       };
 
       if (navigator.canShare && navigator.canShare(shareData)) {
         await navigator.share(shareData);
       } else {
-        const url = `https://wa.me/?text=${encodeURIComponent(`Hey! Here's my Buy 1 Get 1 FREE code for Pop O'Bob! Code: ${bogoCode} Redeemable at the Film Nagar outlet. https://goo.gl/maps/popobob`)}`;
+        const url = `https://wa.me/?text=${encodeURIComponent(`Hey! Here's my Buy 1 Get 1 FREE code for Pop O'Bob Festive! Code: ${bogoCode} Redeemable at the Film Nagar outlet. https://goo.gl/maps/popobob`)}`;
         window.open(url, '_blank');
       }
     } catch (err) {
@@ -389,7 +389,8 @@ export default function App() {
                 <div className="flex justify-between items-start relative z-10">
                   <div>
                     <p className="text-[10px] text-gold tracking-[0.15em] font-medium uppercase mb-1">POP O'BOB EXCLUSIVE</p>
-                    <h3 className="font-serif text-2xl font-medium text-cream tracking-wide">Rakhi Gift Card</h3>
+                    <h3 className="font-serif text-4xl font-medium text-cream tracking-wide">Gift Card</h3>
+                    <p className="font-serif text-lg font-medium text-cream/90 tracking-wide mt-1">Rakhi Edition</p>
                   </div>
                   <Gift className="text-gold w-8 h-8" strokeWidth={1.5} />
                 </div>
@@ -431,7 +432,15 @@ export default function App() {
               </div>
 
               <div className="pb-8">
-                {/* Removed 'Go to Menu to Redeem' link as per user request */}
+                <div className="mt-2 pt-6 border-t border-gray-200">
+                  <h4 className="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider text-left">Terms & Conditions:</h4>
+                  <ul className="text-xs text-gray-500 text-left list-disc pl-4 space-y-2">
+                    <li>Offer valid only from 25th Aug to 31st Aug.</li>
+                    <li>Offer cannot be clubbed with other offers.</li>
+                    <li>Offer valid at Film Nagar store only.</li>
+                    <li>You can choose any 2 products on the menu and billing will be for the higher priced product, the other product goes free.</li>
+                  </ul>
+                </div>
               </div>
             </motion.div>
           )}
