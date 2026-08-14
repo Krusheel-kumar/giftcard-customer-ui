@@ -279,7 +279,7 @@ export default function App() {
               <div className="relative w-full flex-1 z-0 overflow-hidden bg-[#D1BCA6]">
                 
                 {/* Main Image, seamlessly filling the container */}
-                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute inset-0 w-full h-full object-cover object-center" />
+                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute inset-0 w-full h-full object-cover object-[center_top]" />
                 
                 {/* Smooth blend gradient at the top for the logo */}
                 <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[#D1BCA6] via-[#D1BCA6]/60 to-transparent z-10 pointer-events-none" />
