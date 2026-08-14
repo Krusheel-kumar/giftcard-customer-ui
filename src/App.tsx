@@ -276,16 +276,16 @@ export default function App() {
             <motion.div key="landing" variants={fadeUp} initial="hidden" animate="visible" exit="exit" className="fixed inset-0 w-full h-[100dvh] z-40 flex flex-col text-center bg-[#FDFBF7]">
               
               {/* Hero Image - Flexes to dynamically fill all available space */}
-              <div className="relative w-full flex-1 z-0 overflow-hidden" style={{ backgroundColor: '#D1BCA6' }}>
+              <div className="relative w-full flex-1 z-0 overflow-hidden bg-[#D1BCA6]">
                 
-                {/* Main Image, pushed down to clear the huge logo */}
-                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute top-20 left-0 w-full h-[calc(100%-5rem)] object-cover object-bottom" />
+                {/* Main Image, seamlessly filling the container */}
+                <img src={heroImage} alt="Raksha Bandhan Love" className="absolute inset-0 w-full h-full object-cover object-center" />
                 
-                {/* Blend gradient to hide the hard edge where the image begins */}
-                <div className="absolute top-20 left-0 w-full h-24 bg-gradient-to-b from-[#D1BCA6] to-transparent z-10" />
+                {/* Smooth blend gradient at the top for the logo */}
+                <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[#D1BCA6] via-[#D1BCA6]/60 to-transparent z-10 pointer-events-none" />
                 
-                {/* Cinematic gradient to seamlessly blend the image into the page background */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#FDFBF7] via-[#FDFBF7]/20 to-black/20 z-10 pointer-events-none" />
+                {/* Cinematic gradient at the bottom to blend into the card */}
+                <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#FDFBF7] via-[#FDFBF7]/90 to-transparent z-10 pointer-events-none" />
               </div>
 
               {/* Text Content Overlay - Anchored flawlessly to the bottom of the screen */}
