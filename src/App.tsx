@@ -265,7 +265,7 @@ export default function App() {
 
       <header className="absolute top-0 left-0 w-full z-50 bg-transparent pointer-events-none">
         <div className="max-w-5xl mx-auto w-full flex items-start justify-center pt-2 md:pt-4">
-          <img src={wordmark} alt="Pop O'Bob" className="h-20 md:h-28 object-contain scale-125 md:scale-150 drop-shadow-2xl hover:scale-[1.35] transition-transform duration-700 pointer-events-auto" />
+          <img src={wordmark} alt="Pop O'Bob" className="h-16 md:h-24 object-contain scale-125 drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] pointer-events-auto" />
         </div>
       </header>
 
@@ -273,16 +273,16 @@ export default function App() {
         <AnimatePresence mode="wait">
           
           {step === 'landing' && (
-            <motion.div key="landing" variants={fadeUp} initial="hidden" animate="visible" exit="exit" className="fixed inset-0 w-full h-[100dvh] z-40 overflow-hidden bg-[#FDFBF7]">
+            <motion.div key="landing" variants={fadeUp} initial="hidden" animate="visible" exit="exit" className="fixed inset-0 w-full h-[100dvh] z-40 overflow-hidden bg-[#15100f]">
               
-              {/* Full-screen Hero Image */}
-              <img src={heroImage} alt="Raksha Bandhan Love" className="absolute inset-0 w-full h-full object-cover object-[center_30%]" />
+              {/* Full Uncropped Image */}
+              <img src={heroImage} alt="Raksha Bandhan Love" className="absolute top-0 inset-x-0 w-full h-[85dvh] object-contain object-top" />
               
-              {/* Subtle gradient at the bottom to make the card stand out */}
-              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#FDFBF7]/90 to-transparent z-10 pointer-events-none" />
+              {/* Smooth gradient at the bottom to blend the empty space into the card */}
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#FDFBF7] via-[#FDFBF7]/90 to-transparent pointer-events-none" />
 
               {/* Text Content Overlay - Floating at the bottom */}
-              <div className="absolute inset-x-0 bottom-0 w-full max-w-2xl mx-auto px-4 pb-6 md:pb-12 z-20 flex flex-col items-center">
+              <div className="absolute inset-x-0 bottom-0 w-full max-w-2xl mx-auto px-4 pb-6 md:pb-8 z-20 flex flex-col items-center">
                 
                 <div className="bg-[#FDFBF7]/90 backdrop-blur-2xl border border-gold/30 shadow-[0_20px_50px_rgba(113,0,0,0.08)] rounded-[2rem] p-6 md:p-8 text-center w-full relative overflow-hidden">
                   
