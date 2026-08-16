@@ -34,6 +34,7 @@ export default function App() {
   const [bogoCode, setBogoCode] = useState('');
   const [sharing, setSharing] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [agreed, setAgreed] = useState(false);
   
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -67,20 +68,12 @@ export default function App() {
       if (!res.ok) throw new Error(data.message || 'Failed to claim offer');
 
       // 2. Initialize MSG91 Configuration
-      const isLocalTest = false; // window.location.hostname === 'localhost';
-      if (isLocalTest) {
-        setStep('otp');
-        setTimeout(() => inputRefs.current[0]?.focus(), 100);
-        setLoading(false);
-        return;
-      }
-
-      let formattedPhone = phoneNumber.replace('+', '');
-      if (!formattedPhone.startsWith('91')) formattedPhone = '91' + formattedPhone;
+      const digits = phoneNumber.replace(/\D/g, '');
+      const formattedPhone = digits.length === 10 ? `91${digits}` : digits;
 
       window.configuration = {
-        widgetId: "3668656e7541363234303538", 
-        tokenAuth: "557539Tl9kAR3zw36a7347b5P1", 
+        widgetId: import.meta.env.VITE_MSG91_WIDGET_ID || "3668656e7541363234303538", 
+        tokenAuth: import.meta.env.VITE_MSG91_TOKEN_AUTH || "557539Tl9kAR3zw36a7347b5P1", 
         identifier: formattedPhone,
         exposeMethods: "true",
         success: async (data: any) => {
@@ -134,30 +127,6 @@ export default function App() {
     setError('');
     setLoading(true);
 
-    const isLocalTest = window.location.hostname === 'localhost';
-    if (isLocalTest) {
-      if (otpCode !== '1234') {
-        setError('Invalid Test OTP. Use 1234.');
-        setLoading(false);
-        return;
-      }
-      try {
-        const verifyRes = await fetch(`${API}/api/bogo/verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mobileNumber: phoneNumber, customerName: customerName, token: '1234' }),
-        });
-        const verifyData = await verifyRes.json();
-        if (!verifyRes.ok) throw new Error(verifyData.message || 'Verification failed');
-        setBogoCode(verifyData.code);
-        setStep('success');
-      } catch (err: any) {
-        setError(err.message || 'Failed to verify local OTP.');
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
 
     try {
       // Call MSG91 to verify the OTP entered
