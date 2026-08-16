@@ -64,7 +64,7 @@ export default function App() {
       if (!res.ok) throw new Error(data.message || 'Failed to claim offer');
 
       // 2. Initialize MSG91 Configuration
-      const isLocalTest = window.location.hostname === 'localhost';
+      const isLocalTest = false; // window.location.hostname === 'localhost';
       if (isLocalTest) {
         setStep('otp');
         setTimeout(() => inputRefs.current[0]?.focus(), 100);
@@ -87,6 +87,7 @@ export default function App() {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ 
                 mobileNumber: phoneNumber, 
+                customerName: customerName,
                 token: data.message 
               }),
             });
@@ -141,7 +142,7 @@ export default function App() {
         const verifyRes = await fetch(`${API}/api/bogo/verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mobileNumber: phoneNumber, token: '1234' }),
+          body: JSON.stringify({ mobileNumber: phoneNumber, customerName: customerName, token: '1234' }),
         });
         const verifyData = await verifyRes.json();
         if (!verifyRes.ok) throw new Error(verifyData.message || 'Verification failed');
@@ -276,45 +277,45 @@ export default function App() {
             <motion.div key="landing" variants={fadeUp} initial="hidden" animate="visible" exit="exit" className="fixed inset-0 w-full h-[100dvh] z-40 overflow-hidden bg-[#15100f]">
               
               {/* Full Uncropped Image */}
-              <img src={heroImage} alt="Raksha Bandhan Love" className="absolute top-0 inset-x-0 w-full h-[85dvh] object-contain object-top" />
+              <img src={heroImage} alt="Raksha Bandhan Love" className="absolute top-0 inset-x-0 w-full h-auto object-cover object-top" />
               
               {/* Smooth gradient at the bottom to blend the empty space into the card */}
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#FDFBF7] via-[#FDFBF7]/90 to-transparent pointer-events-none" />
 
               {/* Text Content Overlay - Floating at the bottom */}
-              <div className="absolute inset-x-0 bottom-0 w-full max-w-2xl mx-auto px-4 pb-6 md:pb-8 z-20 flex flex-col items-center">
+              <div className="absolute inset-x-0 bottom-0 w-full max-w-lg mx-auto px-4 pb-4 md:pb-6 z-20 flex flex-col items-center">
                 
-                <div className="bg-[#FDFBF7]/90 backdrop-blur-2xl border border-gold/30 shadow-[0_20px_50px_rgba(113,0,0,0.08)] rounded-[2rem] p-6 md:p-8 text-center w-full relative overflow-hidden">
+                <div className="bg-[#FDFBF7]/90 backdrop-blur-2xl border border-gold/30 shadow-[0_20px_50px_rgba(113,0,0,0.08)] rounded-[2rem] p-5 md:p-6 text-center w-full relative overflow-hidden">
                   
                   {/* Subtle top accent line */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-50" />
                   
                   {/* Headings */}
-                  <h1 className="font-serif text-3xl md:text-4xl font-bold leading-tight mb-2 text-richBlack">
+                  <h1 className="font-serif text-2xl md:text-3xl font-bold leading-tight mb-2 text-richBlack">
                     Celebrate the Bond.
                   </h1>
                   
                   {/* Structured Offer Display */}
-                  <div className="flex items-center justify-center gap-4 my-3">
-                    <div className="h-px bg-gradient-to-r from-transparent to-gold/50 flex-1 max-w-[50px]"></div>
-                    <h2 className="font-serif text-xl md:text-2xl italic text-[#710000] font-medium tracking-wide">
+                  <div className="flex items-center justify-center gap-3 my-2 md:my-3">
+                    <div className="h-px bg-gradient-to-r from-transparent to-gold/50 flex-1 max-w-[40px]"></div>
+                    <h2 className="font-serif text-lg md:text-xl italic text-[#710000] font-medium tracking-wide">
                       Buy 1 Get 1 Free
                     </h2>
-                    <div className="h-px bg-gradient-to-l from-transparent to-gold/50 flex-1 max-w-[50px]"></div>
+                    <div className="h-px bg-gradient-to-l from-transparent to-gold/50 flex-1 max-w-[40px]"></div>
                   </div>
                   
                   {/* Description */}
-                  <p className="text-sm md:text-base text-richBlack/70 mb-5 font-medium leading-relaxed max-w-sm mx-auto">
+                  <p className="text-xs md:text-sm text-richBlack/70 mb-4 font-medium leading-relaxed max-w-sm mx-auto">
                     Double the sweetness this Rakhi. Treat your sibling to a boba and the second one is on us!
                   </p>
                   
                   {/* CTA Button */}
                   <button
                     onClick={() => setStep('mobile')}
-                    className="relative overflow-hidden w-full sm:w-auto bg-gradient-to-r from-[#710000] to-[#4A0000] text-cream px-8 py-4 rounded-full font-bold text-base hover:shadow-[0_10px_40px_rgba(113,0,0,0.3)] transition-all duration-300 inline-flex justify-center items-center gap-3 group border border-[#910000]"
+                    className="relative overflow-hidden w-full sm:w-auto bg-gradient-to-r from-[#710000] to-[#4A0000] text-cream px-8 py-3.5 md:py-4 rounded-full font-bold text-sm hover:shadow-[0_10px_40px_rgba(113,0,0,0.3)] transition-all duration-300 inline-flex justify-center items-center gap-3 group border border-[#910000]"
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      Gift a Boba Now <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-2" />
+                      Gift a Boba Now <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-2" />
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/20 to-gold/0 -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                   </button>
