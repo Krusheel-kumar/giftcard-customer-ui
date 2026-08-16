@@ -35,6 +35,7 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   
   const cardRef = useRef<HTMLDivElement>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -352,7 +353,22 @@ export default function App() {
                     </div>
                   </div>
                   {error && <p className="text-red-500 text-sm font-bold text-center bg-red-50 py-2 rounded-lg">{error}</p>}
-                  <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-[#710000] to-[#520000] text-cream font-bold py-4 rounded-2xl hover:shadow-lg transition-all border border-[#910000] mt-4">
+                  
+                  <div className="flex items-start gap-2 mt-4 mb-2 px-1">
+                    <input 
+                      type="checkbox" 
+                      id="terms" 
+                      required
+                      checked={agreed}
+                      onChange={(e) => setAgreed(e.target.checked)}
+                      className="mt-0.5 min-w-[16px] w-4 h-4 accent-[#710000] cursor-pointer"
+                    />
+                    <label htmlFor="terms" className="text-xs text-gray-500 leading-snug cursor-pointer">
+                      I agree to the <a href="#" className="text-[#710000] underline hover:text-[#4A0000] transition-colors">Terms & Conditions</a> and <a href="#" className="text-[#710000] underline hover:text-[#4A0000] transition-colors">Privacy Policy</a> to receive updates on WhatsApp and SMS.
+                    </label>
+                  </div>
+
+                  <button type="submit" disabled={loading || !agreed} className="w-full bg-gradient-to-r from-[#710000] to-[#520000] text-cream font-bold py-4 rounded-2xl hover:shadow-lg transition-all border border-[#910000] mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
                     {loading ? 'Sending OTP...' : 'Get OTP'}
                   </button>
                   <button type="button" onClick={() => setStep('landing')} className="w-full text-sm text-gray-400 font-bold hover:text-black mt-2 transition-colors">Go Back</button>
