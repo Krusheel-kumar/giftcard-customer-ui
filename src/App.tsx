@@ -32,10 +32,12 @@ export default function App() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
   const [bogoCode, setBogoCode] = useState('');
-  const [copied, setCopied] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   
   const cardRef = useRef<HTMLDivElement>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -364,7 +366,7 @@ export default function App() {
                       className="mt-0.5 min-w-[16px] w-4 h-4 accent-[#710000] cursor-pointer"
                     />
                     <label htmlFor="terms" className="text-xs text-gray-500 leading-snug cursor-pointer">
-                      I agree to the <a href="#" className="text-[#710000] underline hover:text-[#4A0000] transition-colors">Terms & Conditions</a> and <a href="#" className="text-[#710000] underline hover:text-[#4A0000] transition-colors">Privacy Policy</a> to receive updates on WhatsApp and SMS.
+                      I agree to the <a href="#" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }} className="text-[#710000] underline hover:text-[#4A0000] transition-colors">Terms & Conditions</a> and <a href="#" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }} className="text-[#710000] underline hover:text-[#4A0000] transition-colors">Privacy Policy</a> to receive updates on WhatsApp and SMS.
                     </label>
                   </div>
 
@@ -493,6 +495,59 @@ export default function App() {
 
         </AnimatePresence>
       </main>
+
+      {/* Terms Modal */}
+      <AnimatePresence>
+        {showTermsModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[80vh]">
+              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 className="font-serif text-xl font-bold text-[#710000]">Terms & Conditions</h3>
+                <button onClick={() => setShowTermsModal(false)} className="text-gray-400 hover:text-black transition-colors p-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto text-sm text-gray-600 space-y-4">
+                <p><strong>1. Acceptance of Terms:</strong> By participating in the POP O'BOB Raksha Bandhan offer, you agree to these terms.</p>
+                <p><strong>2. Offer Details:</strong> The "Buy 1 Get 1 Free" offer is valid only for the generated unique code. One code per user. It is valid until the expiration date mentioned on the card.</p>
+                <p><strong>3. Redemption:</strong> Present the digital gift card at a participating POP O'BOB location before placing your order. Cannot be combined with other offers.</p>
+                <p><strong>4. Communication:</strong> By providing your phone number, you consent to receive order updates, OTPs, and promotional messages via SMS and WhatsApp from POP O'BOB.</p>
+                <p><strong>5. Modifications:</strong> POP O'BOB reserves the right to modify or cancel the offer at any time without prior notice.</p>
+              </div>
+              <div className="p-4 border-t border-gray-100 bg-gray-50/50">
+                <button onClick={() => setShowTermsModal(false)} className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors">I Understand</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Privacy Modal */}
+      <AnimatePresence>
+        {showPrivacyModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[80vh]">
+              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 className="font-serif text-xl font-bold text-[#710000]">Privacy Policy</h3>
+                <button onClick={() => setShowPrivacyModal(false)} className="text-gray-400 hover:text-black transition-colors p-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto text-sm text-gray-600 space-y-4">
+                <p><strong>1. Data Collection:</strong> We collect your name and mobile number when you register for the POP O'BOB Rakhi Gift Card.</p>
+                <p><strong>2. How We Use Your Data:</strong> Your data is used exclusively to generate your personalized gift card, securely send OTPs, and provide updates related to your offer via SMS or WhatsApp.</p>
+                <p><strong>3. Data Protection:</strong> We implement standard security measures to protect your personal information. We do not sell or share your data with unauthorized third parties.</p>
+                <p><strong>4. Third-Party Services:</strong> We use authorized messaging partners (like MSG91 and WhatsApp) solely for delivering notifications.</p>
+                <p><strong>5. Your Rights:</strong> You may opt-out of marketing communications at any time by replying STOP to our messages.</p>
+              </div>
+              <div className="p-4 border-t border-gray-100 bg-gray-50/50">
+                <button onClick={() => setShowPrivacyModal(false)} className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors">I Understand</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
