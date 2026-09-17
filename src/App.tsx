@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gift, Lock, Loader2, PartyPopper, CheckCircle2, ChevronRight, MapPin } from 'lucide-react';
+import { Gift, Lock, MapPin } from 'lucide-react';
 import './index.css';
 
 import wordmark from './assets/Horizontal Wordmark with Emblem.png';
