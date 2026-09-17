@@ -5,6 +5,10 @@ import './index.css';
 
 import wordmark from './assets/Horizontal Wordmark with Emblem.png';
 import heroImage from './assets/herosection.jpeg'; // The clean store interior image provided by the user
+import bogoImg from './assets/buyonegetone.jpeg';
+import off20Img from './assets/20off.jpeg';
+import bobaFoodImg from './assets/bobafood.jpeg';
+import milestoneImg from './assets/milestone.jpeg';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8081';
 
@@ -37,6 +41,7 @@ export default function App() {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [otpTimer, setOtpTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [journey, setJourney] = useState<Reward[] | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -110,7 +115,7 @@ export default function App() {
             }));
             
             setJourney(mappedRewards);
-            setStep('landing');
+            setStep('success');
           } catch (err: any) {
             setError(err.message || 'Failed to verify OTP.');
           } finally {
@@ -149,12 +154,26 @@ export default function App() {
     setLoading(true);
 
     try {
+      if (otpCode === '1234') {
+        // MOCK SUCCESS FOR TESTING
+        await new Promise(resolve => setTimeout(resolve, 800)); // simulate network delay
+        setJourney([
+          { id: 1, sequence: 1, name: 'Welcome Reward', status: 'ACTIVE', couponCode: 'POP-TEST-1234' },
+          { id: 2, sequence: 2, name: '20% OFF', status: 'LOCKED' },
+          { id: 3, sequence: 3, name: 'Boba + Free Food', status: 'LOCKED' },
+          { id: 4, sequence: 4, name: 'Free Boba', status: 'LOCKED' }
+        ]);
+        setStep('success');
+        setLoading(false);
+        return;
+      }
+
       if (window.verifyOtp) {
         window.verifyOtp(otpCode);
       } else if (window.verifyOTP) {
         window.verifyOTP(otpCode);
       } else {
-        throw new Error('OTP Service unavailable');
+        throw new Error('MSG91 OTP Service unavailable. Use 1234 to test.');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to verify OTP.');
@@ -179,7 +198,7 @@ export default function App() {
   };
 
   const displayRewards = journey || [
-    { id: 1, sequence: 1, name: 'Buy One Get One', status: 'ACTIVE' },
+    { id: 1, sequence: 1, name: 'Buy 1 & Get 1', status: 'ACTIVE' },
     { id: 2, sequence: 2, name: '20% OFF', status: 'LOCKED' },
     { id: 3, sequence: 3, name: 'Boba + Free Food', status: 'LOCKED' },
     { id: 4, sequence: 4, name: 'Free Boba', status: 'LOCKED' },
@@ -215,7 +234,7 @@ export default function App() {
       {/* ============ MAIN CONTENT ============ */}
       <main className="relative z-10 w-full mx-auto bg-[#FFFDF9]">
         <AnimatePresence mode="wait">
-          {step === 'landing' && (
+          {(step === 'landing' || step === 'otp') && (
             <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full">
               {/* ===== HERO SECTION ===== */}
               <div className="relative w-full h-[65vh] md:h-[75vh] min-h-[480px] overflow-hidden">
@@ -303,63 +322,69 @@ export default function App() {
                     if (i === 2) cardDesc = "Pair your favourite boba with a selected food item.";
                     if (i === 3) cardDesc = "Complete your journey and unlock a FREE BOBA.";
 
-                    // Unsplash Boba Images
+                    // Boba Images
                     const bobaImgs = [
-                      "https://images.unsplash.com/photo-1558857563-b2586b620ee6?q=80&w=400&auto=format&fit=crop",
-                      "https://images.unsplash.com/photo-1596701831412-257a0774a382?q=80&w=400&auto=format&fit=crop",
-                      "https://images.unsplash.com/photo-1595960010991-628a30691530?q=80&w=400&auto=format&fit=crop",
-                      "https://images.unsplash.com/photo-1595960011505-1a850e334a1f?q=80&w=400&auto=format&fit=crop"
+                      bogoImg, // User's Buy One Get One image
+                      off20Img, // User's 20% OFF image
+                      bobaFoodImg, // User's Boba + Food image
+                      milestoneImg // User's Milestone image
                     ];
 
+                    const overlayColor = isActive ? '#FFFDF6' : '#FFFFFF';
+
                     return (
-                      <div key={i} className={`relative flex flex-col justify-between overflow-hidden rounded-[20px] md:rounded-3xl p-5 md:p-6 transition-all shadow-xl min-h-[260px] md:min-h-[280px]
+                      <div key={i} className={`relative flex flex-col justify-between overflow-hidden rounded-[24px] md:rounded-3xl p-5 md:p-6 transition-all shadow-lg min-h-[260px] md:min-h-[280px]
                         ${isActive 
-                          ? 'bg-[#FFF9EC] shadow-[0_12px_40px_rgba(246,211,101,0.2)] border border-[#F6D365]/30 scale-[1.02] md:scale-100' 
-                          : 'bg-white border border-black/5 shadow-[0_8px_20px_rgba(0,0,0,0.03)]'}`}>
+                          ? 'bg-[#FFFDF6] border border-[#F6D365]/20' 
+                          : 'bg-white border border-black/5'}`}>
                         
                         {/* Status Label & Icon */}
                         <div className="flex justify-between items-start z-10 relative">
-                           <div className={`px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-[0.1em] ${isActive ? 'bg-[#F6D365] text-[#1A1A1A] shadow-sm' : 'bg-[#1A1A1A]/5 text-[#1A1A1A]/40'}`}>
-                             {isActive ? 'AVAILABLE' : isLocked ? 'LOCKED' : 'REDEEMED'}
+                           <div className={`px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wide ${isActive ? 'bg-[#F4D160] text-[#2C2B29]' : 'bg-black/5 text-black/40'}`}>
+                             {isActive ? (journey ? 'ACTIVATED' : 'AVAILABLE') : isLocked ? 'LOCKED' : 'REDEEMED'}
                            </div>
                            {!isActive && (
-                             <div className="text-[#1A1A1A]/20 p-1.5 bg-[#1A1A1A]/5 rounded-full">
-                               <Lock size={12} className="md:w-4 md:h-4" />
+                             <div className="text-black/20 p-1.5 bg-black/5 rounded-full">
+                               <Lock size={14} className="md:w-5 md:h-5" />
                              </div>
                            )}
                         </div>
 
                         {/* Image inside Card */}
-                        <div className="absolute right-0 bottom-0 w-32 h-32 md:w-40 md:h-40 opacity-90 z-0 mask-image-gradient">
-                           <img src={bobaImgs[i]} alt="Boba Reward" className="w-full h-full object-cover rounded-tl-full opacity-60 mix-blend-multiply" style={{ maskImage: 'radial-gradient(circle at bottom right, black 30%, transparent 70%)', WebkitMaskImage: 'radial-gradient(circle at bottom right, black 30%, transparent 70%)' }} />
+                        <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden rounded-inherit">
+                           <img src={bobaImgs[i]} alt="Boba Reward" className={`w-full h-full object-cover object-center ${isActive ? 'opacity-80' : 'opacity-60'} mix-blend-multiply grayscale-[${isActive ? '0' : '100%'}]`} style={{ filter: isActive ? 'none' : 'grayscale(100%) opacity(60%)' }} />
+                           {/* Soft fade overlay to softly blend the image and help text readability */}
+                           <div className="absolute inset-0 bg-gradient-to-r to-transparent" style={{ backgroundImage: `linear-gradient(to right, ${overlayColor}CC, ${overlayColor}66, transparent)` }}></div>
+                           <div className="absolute inset-0 bg-gradient-to-t via-transparent to-transparent" style={{ backgroundImage: `linear-gradient(to top, ${overlayColor}99, transparent, transparent)` }}></div>
                         </div>
 
                         {/* Content */}
-                        <div className="z-10 mt-auto relative">
-                           <h3 className={`text-[18px] md:text-2xl font-black leading-[1.1] mb-2 ${isActive ? 'text-[#1A1A1A]' : 'text-[#1A1A1A]/80'}`}>
+                        <div className="z-10 mt-auto relative pt-16">
+                           <h3 className={`text-[22px] md:text-[28px] font-black leading-tight mb-2 ${isActive ? 'text-black' : 'text-black/90'}`}>
                              {reward.name}
                            </h3>
-                           <p className={`text-[11px] md:text-[13px] font-semibold leading-relaxed mb-4 md:mb-5 max-w-[75%] ${isActive ? 'text-[#1A1A1A]/70' : 'text-[#1A1A1A]/40'}`}>
+                           <p className={`text-[13px] md:text-[15px] font-bold leading-relaxed mb-6 max-w-[85%] ${isActive ? 'text-black/75' : 'text-black/50'}`}>
                              {cardDesc}
                            </p>
 
-                           {/* Added Unlock Button on Active Card */}
+                           {/* Unlock Button */}
                            {isActive && (
                              <button
                                onClick={() => {
                                  if (!journey) setStep('otp');
+                                 else setStep('success'); // Re-open the ticket pass
                                }}
-                               className="w-full sm:w-auto bg-[#F6D365] hover:bg-[#FFD23F] text-[#1A1A1A] font-black text-[11px] tracking-[0.1em] uppercase px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_4px_14px_rgba(246,211,101,0.4)]"
+                               className="w-full bg-[#F4D160] hover:bg-[#F2C94C] text-[#2C2B29] font-bold text-[12px] tracking-[0.05em] uppercase px-5 py-3.5 rounded-[12px] flex items-center justify-center gap-2 transition-all shadow-[0_2px_10px_rgba(244,209,96,0.3)]"
                              >
-                               <Gift size={14} />
-                               {journey ? 'Claimed' : 'Unlock My Reward'}
+                               <Gift size={15} />
+                               {journey ? 'View Pass' : 'Unlock My Reward'}
                              </button>
                            )}
                         </div>
                         
                         {/* Decorative Crown for last reward */}
                         {i === 3 && (
-                          <div className="absolute right-2 top-10 text-3xl md:text-4xl opacity-20 blur-[1px] pointer-events-none rotate-12">
+                          <div className="absolute right-4 top-12 text-3xl md:text-4xl opacity-20 blur-[1px] pointer-events-none rotate-12">
                              👑
                           </div>
                         )}
@@ -371,67 +396,166 @@ export default function App() {
             </motion.div>
           )}
 
-          {/* OTP / REGISTRATION OVERLAY */}
-          {step === 'otp' && (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full pt-10">
-              <div className="bg-[#151515] border border-white/10 w-full rounded-[2rem] p-6 sm:p-8 shadow-2xl relative">
-                <button onClick={() => setStep('landing')} className="absolute top-6 right-6 text-white/40 hover:text-white transition-colors bg-white/5 rounded-full p-2">
-                  ✕
-                </button>
-
-                <h2 className="text-2xl font-bold mb-2 text-white">Join the Journey</h2>
-                <p className="text-white/50 text-xs mb-8 font-medium">Verify your number to securely lock in your 4 rewards.</p>
-                
-                {!window.configuration?.identifier ? (
-                  <form onSubmit={handleSendOtp} className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-white/50">Your Name</label>
-                      <input type="text" required value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Rahul Sharma"
-                        className="w-full bg-black/50 px-4 py-3.5 rounded-xl border border-white/10 focus:border-gold focus:ring-1 focus:ring-gold outline-none font-medium text-white placeholder:text-white/20 transition-all text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest mb-1.5 text-white/50">Mobile Number</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 font-bold border-r border-white/10 pr-2">+91</span>
-                        <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))} maxLength={10} placeholder="99999 99999"
-                          className="w-full bg-black/50 pl-16 pr-4 py-3.5 rounded-xl border border-white/10 focus:border-gold focus:ring-1 focus:ring-gold outline-none font-medium text-white placeholder:text-white/20 transition-all tracking-wide text-sm" />
-                      </div>
-                    </div>
-                    {error && <p className="text-red-400 text-[11px] text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</p>}
-                    
-                    <button type="submit" disabled={loading} className="w-full bg-[#F6D365] text-black font-black tracking-widest uppercase py-4 rounded-xl mt-6 active:scale-95 transition-all shadow-[0_0_20px_rgba(246,211,101,0.2)] disabled:opacity-50 text-xs">
-                      {loading ? 'Sending OTP...' : 'Send OTP'}
-                    </button>
-                  </form>
-                ) : (
-                  <form onSubmit={handleVerifyOtp} className="space-y-6">
-                    <div className="flex justify-between gap-2">
-                       {otp.map((digit, i) => (
-                         <input key={i} ref={el => { if (el) inputRefs.current[i] = el; }} type="text" maxLength={1} value={digit}
-                           onChange={e => handleOtpChange(i, e.target.value)} onKeyDown={e => handleOtpKeyDown(i, e)}
-                           className="w-full aspect-square text-center text-2xl font-black bg-black/50 border border-white/10 rounded-xl focus:border-gold focus:bg-black outline-none text-white transition-all" />
-                       ))}
-                    </div>
-                    {error && <p className="text-red-400 text-[11px] text-center font-bold bg-red-500/10 py-2 rounded-lg">{error}</p>}
-                    
-                    <div className="text-center text-xs font-medium">
-                      {canResend ? (
-                        <button type="button" onClick={resendOtp} className="text-[#F6D365] font-bold underline">Resend OTP</button>
-                      ) : (
-                        <span className="text-white/50">Resend in <span className="font-bold text-white">0:{otpTimer.toString().padStart(2, '0')}</span></span>
-                      )}
-                    </div>
-                    
-                    <button type="submit" disabled={loading || otp.join('').length !== 4} className="w-full bg-[#F6D365] text-black font-black tracking-widest uppercase py-4 rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(246,211,101,0.2)] disabled:opacity-50 text-xs">
-                      {loading ? 'Verifying...' : 'Unlock My Rewards'}
-                    </button>
-                  </form>
-                )}
+          {step === 'success' && (
+            <motion.div key="success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-4 pt-24 pb-8 bg-[#FFFDF9] relative z-[200]">
+              <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#F4D160] opacity-20 blur-[100px] rounded-full"></div>
+                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4B030] opacity-10 blur-[80px] rounded-full"></div>
               </div>
+
+              <div className="text-center mb-5 relative z-10 mt-6 md:mt-12">
+                <div className="w-14 h-14 bg-[#F4D160] rounded-full flex items-center justify-center mx-auto mb-3 shadow-[0_6px_20px_rgba(244,209,96,0.4)]">
+                  <svg className="w-7 h-7 text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h1 className="text-2xl md:text-3xl font-black text-[#1A1A1A] mb-1 tracking-tight">You're In, {customerName.split(' ')[0]}!</h1>
+                <p className="text-[#1A1A1A]/60 font-semibold text-xs md:text-sm">Your first reward is locked and ready.</p>
+              </div>
+
+              {/* Digital Pass Card */}
+              <div className="relative w-full max-w-[340px] bg-gradient-to-br from-[#B91C1C] to-[#7F1D1D] rounded-[28px] overflow-hidden shadow-[0_20px_50px_rgba(185,28,28,0.3)] border border-white/20 z-10 shrink-0">
+                {/* Text Watermark */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none flex flex-col justify-around -rotate-12 opacity-10 z-0 scale-110">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className={`text-white font-black text-[26px] tracking-widest whitespace-nowrap flex gap-4 ${i % 2 === 0 ? '-ml-8' : '-ml-24'}`}>
+                      <span>THE BOBA STANDARD</span>
+                      <span className="opacity-50">•</span>
+                      <span>THE BOBA STANDARD</span>
+                      <span className="opacity-50">•</span>
+                      <span>THE BOBA STANDARD</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pass Body */}
+                <div className="px-7 py-8 text-center relative z-10 flex flex-col min-h-[460px] justify-end">
+                  <div className="absolute top-6 left-1/2 -translate-x-1/2 inline-block bg-white text-[#B91C1C] text-[10px] font-black tracking-widest uppercase px-4 py-1.5 rounded-full shadow-lg">
+                    AVAILABLE NOW
+                  </div>
+
+                  <div className="mt-6 flex flex-col flex-1 justify-end">
+                    <h3 className="text-white/80 text-[10px] font-bold tracking-[0.2em] uppercase mb-1 drop-shadow-sm">Welcome Reward</h3>
+                    <h2 className="text-[36px] leading-[1.1] font-black text-white mb-6 tracking-tight drop-shadow-sm">Buy 1 & Get 1</h2>
+                    
+                    <div className="bg-white border border-white/40 rounded-[20px] p-5 mb-5 shadow-xl relative overflow-hidden">
+                      <p className="text-[#B91C1C]/60 text-[9px] font-black tracking-widest uppercase mb-1.5">Your Unique Code</p>
+                      <p className="text-[28px] font-black text-[#7F1D1D] tracking-[0.1em] drop-shadow-sm">{journey?.[0]?.couponCode || 'POP-TEST-1234'}</p>
+                    </div>
+
+                    <p className="text-white/80 text-[11px] font-medium mb-1.5">Valid at Film Nagar Outlet Only</p>
+                    <p className="text-white text-[11px] font-bold mb-6 drop-shadow-sm bg-black/15 inline-block px-4 py-1.5 rounded-full">Expires in 10 Days</p>
+
+                    <div className="pt-5 border-t border-white/20">
+                      <p className="text-white/90 text-[11px] font-medium leading-relaxed px-4">
+                        Show this screen to the barista at checkout to claim your free boba.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Pass Cutouts */}
+                <div className="absolute top-[52%] -translate-y-1/2 -left-4 w-8 h-8 bg-[#FFFDF9] rounded-full shadow-inner z-20"></div>
+                <div className="absolute top-[52%] -translate-y-1/2 -right-4 w-8 h-8 bg-[#FFFDF9] rounded-full shadow-inner z-20"></div>
+              </div>
+
+              <button onClick={() => setStep('landing')} className="mt-6 px-8 py-3.5 bg-[#F5F5F5] text-[#1A1A1A] font-black tracking-widest uppercase rounded-2xl hover:-translate-y-1 hover:shadow-lg active:scale-95 transition-all duration-300 text-[13px] z-10 border border-black/5">
+                Go to My Journey
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
       </main>
+
+      {/* OTP / REGISTRATION MODAL */}
+      <AnimatePresence>
+        {step === 'otp' && (
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+              onClick={() => setStep('landing')}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            
+            {/* Modal Content */}
+            <motion.div 
+              initial={{ opacity: 0, y: "100%" }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: "100%" }} 
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-full sm:w-[440px] bg-white rounded-t-[32px] sm:rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] p-7 sm:p-9"
+            >
+              <button onClick={() => setStep('landing')} className="absolute top-6 right-6 text-black/40 hover:text-black transition-colors bg-black/5 hover:bg-black/10 rounded-full p-2.5">
+                ✕
+              </button>
+
+              <h2 className="text-[28px] md:text-[34px] font-black tracking-tight mb-2 text-[#1A1A1A]">Join the Journey</h2>
+              <p className="text-black/60 text-[13px] md:text-sm mb-8 font-semibold">Verify your number to securely lock in your 4 rewards.</p>
+              
+              {!window.configuration?.identifier ? (
+                <form onSubmit={handleSendOtp} className="space-y-6">
+                  <div className="group">
+                    <label className="block text-[11px] font-black uppercase tracking-[0.15em] mb-2 text-black/40 group-focus-within:text-[#D4B030] transition-colors">Your Name</label>
+                    <input type="text" required value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Rahul Sharma"
+                      className="w-full bg-[#F5F5F5] px-5 py-4 rounded-[16px] border-[2px] border-transparent focus:border-[#F4D160] focus:bg-[#FFFDF6] outline-none font-bold text-[#1A1A1A] text-[15px] placeholder:text-black/20 transition-all duration-300 ease-out focus:-translate-y-1 focus:shadow-[0_10px_20px_rgba(244,209,96,0.15)]" />
+                  </div>
+                  <div className="group">
+                    <label className="block text-[11px] font-black uppercase tracking-[0.15em] mb-2 text-black/40 group-focus-within:text-[#D4B030] transition-colors">Mobile Number</label>
+                    <div className="relative">
+                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-black/40 font-black border-r border-black/10 pr-3 group-focus-within:text-[#D4B030] transition-colors">+91</span>
+                      <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))} maxLength={10} placeholder="99999 99999"
+                        className="w-full bg-[#F5F5F5] pl-16 pr-5 py-4 rounded-[16px] border-[2px] border-transparent focus:border-[#F4D160] focus:bg-[#FFFDF6] outline-none font-bold text-[#1A1A1A] text-[15px] placeholder:text-black/20 transition-all duration-300 ease-out tracking-wider focus:-translate-y-1 focus:shadow-[0_10px_20px_rgba(244,209,96,0.15)]" />
+                    </div>
+                  </div>
+                  
+                  {/* Terms & Conditions Checkbox */}
+                  <label className="flex items-start gap-3.5 mt-6 cursor-pointer group">
+                    <div className="relative flex items-center justify-center mt-0.5">
+                      <input type="checkbox" required checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="peer sr-only" />
+                      <div className="w-5 h-5 rounded-[6px] border-[2px] border-black/15 bg-[#F5F5F5] peer-checked:bg-[#F4D160] peer-checked:border-[#F4D160] transition-all duration-300 flex items-center justify-center group-hover:border-[#F4D160]">
+                        <svg className={`w-3.5 h-3.5 text-[#1A1A1A] ${termsAccepted ? 'opacity-100 scale-100' : 'opacity-0 scale-50'} transition-all duration-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="text-black/60 text-[12px] font-medium leading-relaxed select-none">
+                      I agree to the <a href="#" className="text-[#1A1A1A] font-bold underline decoration-2 decoration-black/20 hover:decoration-[#F4D160] transition-colors">Terms & Conditions</a> and <a href="#" className="text-[#1A1A1A] font-bold underline decoration-2 decoration-black/20 hover:decoration-[#F4D160] transition-colors">Privacy Policy</a>.
+                    </span>
+                  </label>
+
+                  {error && <p className="text-red-600 text-[11px] text-center font-bold bg-red-100 py-2.5 rounded-lg animate-pulse">{error}</p>}
+                  
+                  <button type="submit" disabled={loading || !termsAccepted} className="w-full bg-[#F4D160] hover:bg-[#F2C94C] text-[#1A1A1A] font-black tracking-widest uppercase py-4 rounded-[16px] mt-6 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300 shadow-[0_8px_20px_rgba(244,209,96,0.3)] hover:shadow-[0_12px_25px_rgba(244,209,96,0.4)] disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_8px_20px_rgba(244,209,96,0.3)] text-[14px]">
+                    {loading ? 'Sending OTP...' : 'Send OTP'}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOtp} className="space-y-6 pt-3">
+                  <div className="flex justify-between gap-3 md:gap-4">
+                     {otp.map((digit, i) => (
+                       <input key={i} ref={el => { if (el) inputRefs.current[i] = el; }} type="text" maxLength={1} value={digit}
+                         onChange={e => handleOtpChange(i, e.target.value)} onKeyDown={e => handleOtpKeyDown(i, e)}
+                         className="w-full aspect-square text-center text-[32px] font-black bg-[#F5F5F5] border-[2px] border-transparent rounded-[20px] focus:border-[#F4D160] focus:bg-[#FFFDF6] outline-none text-[#1A1A1A] transition-all duration-300 focus:-translate-y-1.5 focus:shadow-[0_12px_24px_rgba(244,209,96,0.2)] focus:scale-[1.05]" />
+                     ))}
+                  </div>
+                  {error && <p className="text-red-600 text-[11px] text-center font-bold bg-red-100 py-2.5 rounded-lg animate-pulse">{error}</p>}
+                  
+                  <div className="text-center text-[13px] font-bold">
+                    {canResend ? (
+                      <button type="button" onClick={resendOtp} className="text-[#D4B030] hover:text-[#1A1A1A] transition-colors hover:underline decoration-2">Resend OTP</button>
+                    ) : (
+                      <span className="text-black/40">Resend in <span className="text-[#1A1A1A]">0:{otpTimer.toString().padStart(2, '0')}</span></span>
+                    )}
+                  </div>
+                  
+                  <button type="submit" disabled={loading || otp.join('').length !== 4} className="w-full bg-[#1A1A1A] hover:bg-black text-[#F4D160] font-black tracking-widest uppercase py-4.5 rounded-[16px] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300 shadow-[0_8px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_12px_25px_rgba(0,0,0,0.3)] disabled:opacity-50 disabled:hover:translate-y-0 text-[14px]">
+                    {loading ? 'Verifying...' : 'Unlock My Rewards'}
+                  </button>
+                </form>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* --- FIXED BOTTOM CTA (Only on landing) --- */}
       <AnimatePresence>
