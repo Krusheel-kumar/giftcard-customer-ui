@@ -27,9 +27,82 @@ interface Reward {
   id: number;
   sequence: number;
   name: string;
-  status: 'LOCKED' | 'ACTIVE' | 'REDEEMED' | 'EXPIRED';
+  status: 'LOCKED' | 'ACTIVE' | 'REDEEMED' | 'EXPIRED' | 'PENDING_UNLOCK';
   couponCode?: string;
+  activatedAt?: string;
 }
+
+const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
+  const [timeLeft, setTimeLeft] = useState<{ hours: number, minutes: number, seconds: number } | null>(null);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = new Date(targetDate).getTime() - new Date().getTime();
+      if (difference > 0) {
+        setTimeLeft({
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+          seconds: Math.floor((difference / 1000) % 60)
+        });
+      } else {
+        setTimeLeft(null);
+      }
+    };
+    
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  if (!timeLeft) return (
+    <div className="w-full flex justify-center py-4">
+      <span className="font-mono tracking-wider font-bold animate-pulse text-[#1A1A1A]">Unlocking now...</span>
+    </div>
+  );
+  
+  return (
+    <div className="w-full flex items-center justify-center gap-2 mt-2 mb-1">
+      {/* Hours */}
+      <div className="flex flex-col items-center justify-center bg-[#1A1A1A] border-2 border-black/10 rounded-xl w-14 h-14 md:w-16 md:h-16 shadow-[0_4px_20px_rgba(0,0,0,0.15)] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
+        <span className="text-[22px] md:text-2xl font-black text-[#F6D365] leading-none tracking-tight shadow-sm z-10">
+          {timeLeft.hours.toString().padStart(2, '0')}
+        </span>
+        <span className="text-[8px] md:text-[9px] uppercase tracking-[0.2em] font-bold text-white/50 mt-1 z-10">
+          Hrs
+        </span>
+      </div>
+      
+      {/* Separator */}
+      <span className="text-[#1A1A1A] font-black text-xl md:text-2xl opacity-50 pb-2 animate-pulse">:</span>
+      
+      {/* Minutes */}
+      <div className="flex flex-col items-center justify-center bg-[#1A1A1A] border-2 border-black/10 rounded-xl w-14 h-14 md:w-16 md:h-16 shadow-[0_4px_20px_rgba(0,0,0,0.15)] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
+        <span className="text-[22px] md:text-2xl font-black text-[#F6D365] leading-none tracking-tight shadow-sm z-10">
+          {timeLeft.minutes.toString().padStart(2, '0')}
+        </span>
+        <span className="text-[8px] md:text-[9px] uppercase tracking-[0.2em] font-bold text-white/50 mt-1 z-10">
+          Min
+        </span>
+      </div>
+      
+      {/* Separator */}
+      <span className="text-[#1A1A1A] font-black text-xl md:text-2xl opacity-50 pb-2 animate-pulse">:</span>
+      
+      {/* Seconds */}
+      <div className="flex flex-col items-center justify-center bg-[#1A1A1A] border-2 border-black/10 rounded-xl w-14 h-14 md:w-16 md:h-16 shadow-[0_4px_20px_rgba(0,0,0,0.15)] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
+        <span className="text-[22px] md:text-2xl font-black text-[#F6D365] leading-none tracking-tight shadow-sm z-10">
+          {timeLeft.seconds.toString().padStart(2, '0')}
+        </span>
+        <span className="text-[8px] md:text-[9px] uppercase tracking-[0.2em] font-bold text-white/50 mt-1 z-10">
+          Sec
+        </span>
+      </div>
+    </div>
+  );
+};
 
 export default function App() {
   const [step, setStep] = useState<Step>('landing');
@@ -45,6 +118,42 @@ export default function App() {
 
   const [journey, setJourney] = useState<Reward[] | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    // 1. Check URL for token (Magic Link from WhatsApp)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('token');
+    if (urlToken) {
+      localStorage.setItem('popobob_token', urlToken);
+      window.history.replaceState({}, document.title, window.location.pathname); // clear URL
+    }
+
+    // 2. Invisible Auth
+    const token = localStorage.getItem('popobob_token');
+    if (token) {
+      fetch(`${API}/api/rewards/me/POBFN`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Token expired');
+        return res.json();
+      })
+      .then(data => {
+        const mappedRewards = data.map((cr: any, index: number) => ({
+          id: cr.id,
+          sequence: index + 1,
+          name: cr.rewardDefinitionId === 1 ? 'WELCOME REWARD' : cr.rewardDefinitionId === 2 ? '20% OFF' : cr.rewardDefinitionId === 3 ? 'BOBA + FREE FOOD' : 'MILESTONE REWARD',
+          status: cr.status,
+          couponCode: cr.couponCode,
+          activatedAt: cr.activatedAt,
+        }));
+        setJourney(mappedRewards);
+      })
+      .catch(() => {
+        localStorage.removeItem('popobob_token'); // Clear invalid token
+      });
+    }
+  }, []);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -93,7 +202,7 @@ export default function App() {
         success: async (data: any) => {
           try {
             setLoading(true);
-            const verifyRes = await fetch(`${API}/api/rewards/campaign/FILM_NAGAR_REWARDS/verify`, {
+            const verifyRes = await fetch(`${API}/api/rewards/campaign/POBFN/verify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ 
@@ -106,12 +215,19 @@ export default function App() {
             const verifyData = await verifyRes.json();
             if (!verifyRes.ok) throw new Error(verifyData.message || 'Verification failed');
             
-            const mappedRewards = verifyData.map((cr: any, index: number) => ({
+            // Save token for invisible authentication next time
+            if (verifyData.token) {
+              localStorage.setItem('popobob_token', verifyData.token);
+            }
+            
+            const journeyList = verifyData.journey || verifyData;
+            const mappedRewards = journeyList.map((cr: any, index: number) => ({
               id: cr.id,
               sequence: index + 1,
               name: cr.rewardDefinitionId === 1 ? 'WELCOME REWARD' : cr.rewardDefinitionId === 2 ? '20% OFF' : cr.rewardDefinitionId === 3 ? 'BOBA + FREE FOOD' : 'MILESTONE REWARD',
               status: cr.status,
               couponCode: cr.couponCode,
+              activatedAt: cr.activatedAt,
             }));
             
             setJourney(mappedRewards);
@@ -314,6 +430,7 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 max-w-4xl mx-auto relative z-10">
                   {displayRewards.map((reward, i) => {
                     const isActive = reward.status === 'ACTIVE' || (!journey && i === 0);
+                    const isPending = reward.status === 'PENDING_UNLOCK';
                     const isLocked = reward.status === 'LOCKED' || (!journey && i > 0);
 
                     let cardDesc = "";
@@ -330,29 +447,31 @@ export default function App() {
                       milestoneImg // User's Milestone image
                     ];
 
-                    const overlayColor = isActive ? '#FFFDF6' : '#FFFFFF';
+                    const overlayColor = isActive ? '#FFFDF6' : isPending ? '#F0F8FF' : '#FFFFFF';
 
                     return (
                       <div key={i} className={`relative flex flex-col justify-between overflow-hidden rounded-[24px] md:rounded-3xl p-5 md:p-6 transition-all shadow-lg min-h-[260px] md:min-h-[280px]
                         ${isActive 
                           ? 'bg-[#FFFDF6] border border-[#F6D365]/20' 
-                          : 'bg-white border border-black/5'}`}>
+                          : isPending 
+                            ? 'bg-blue-50/40 border border-blue-200/50' 
+                            : 'bg-white border border-black/5'}`}>
                         
                         {/* Status Label & Icon */}
                         <div className="flex justify-between items-start z-10 relative">
-                           <div className={`px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wide ${isActive ? 'bg-[#F4D160] text-[#2C2B29]' : 'bg-black/5 text-black/40'}`}>
-                             {isActive ? (journey ? 'ACTIVATED' : 'AVAILABLE') : isLocked ? 'LOCKED' : 'REDEEMED'}
+                           <div className={`px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wide ${isActive ? 'bg-[#F4D160] text-[#2C2B29]' : isPending ? 'bg-blue-100 text-blue-800' : 'bg-black/5 text-black/40'}`}>
+                             {isActive ? (journey ? 'ACTIVATED' : 'AVAILABLE') : isPending ? 'UNLOCKING SOON' : isLocked ? 'LOCKED' : 'REDEEMED'}
                            </div>
                            {!isActive && (
                              <div className="text-black/20 p-1.5 bg-black/5 rounded-full">
-                               <Lock size={14} className="md:w-5 md:h-5" />
+                               {isPending ? <div className="text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div> : <Lock size={14} className="md:w-5 md:h-5" />}
                              </div>
                            )}
                         </div>
 
                         {/* Image inside Card */}
                         <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden rounded-inherit">
-                           <img src={bobaImgs[i]} alt="Boba Reward" className={`w-full h-full object-cover object-center ${isActive ? 'opacity-80' : 'opacity-60'} mix-blend-multiply grayscale-[${isActive ? '0' : '100%'}]`} style={{ filter: isActive ? 'none' : 'grayscale(100%) opacity(60%)' }} />
+                           <img src={bobaImgs[i]} alt="Boba Reward" className={`w-full h-full object-cover object-center ${isActive ? 'opacity-80' : 'opacity-60'} mix-blend-multiply grayscale-[${isActive ? '0' : '100%'}]`} style={{ filter: isActive ? 'none' : isPending ? 'grayscale(50%) opacity(70%)' : 'grayscale(100%) opacity(60%)' }} />
                            {/* Soft fade overlay to softly blend the image and help text readability */}
                            <div className="absolute inset-0 bg-gradient-to-r to-transparent" style={{ backgroundImage: `linear-gradient(to right, ${overlayColor}CC, ${overlayColor}66, transparent)` }}></div>
                            <div className="absolute inset-0 bg-gradient-to-t via-transparent to-transparent" style={{ backgroundImage: `linear-gradient(to top, ${overlayColor}99, transparent, transparent)` }}></div>
@@ -379,6 +498,14 @@ export default function App() {
                                <Gift size={15} />
                                {journey ? 'View Pass' : 'Unlock My Reward'}
                              </button>
+                           )}
+
+                           {/* Pending Unlock Timer */}
+                           {isPending && reward.activatedAt && (
+                             <div className="w-full flex flex-col items-center justify-center mt-2 pt-4 border-t border-black/5">
+                               <span className="text-[10px] uppercase font-black tracking-widest text-[#1A1A1A]/50 bg-white/40 px-3 py-1 rounded-full mb-1 backdrop-blur-sm shadow-sm">Reward Unlocks In</span>
+                               <CountdownTimer targetDate={reward.activatedAt} />
+                             </div>
                            )}
                         </div>
                         
@@ -559,12 +686,12 @@ export default function App() {
 
       {/* --- FIXED BOTTOM CTA (Only on landing) --- */}
       <AnimatePresence>
-        {step === 'landing' && (
+        {step === 'landing' && (!journey || displayRewards.some(r => r.status === 'ACTIVE')) && (
           <motion.div 
             initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-            className="fixed bottom-0 left-0 w-full z-50 p-5 bg-gradient-to-t from-black via-black/90 to-transparent"
+            className="fixed bottom-0 left-0 w-full z-50 p-5 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none"
           >
-            <div className="max-w-md mx-auto flex flex-col items-center">
+            <div className="max-w-md mx-auto flex flex-col items-center pointer-events-auto">
               {!journey ? (
                 <>
                   <button 
@@ -582,7 +709,7 @@ export default function App() {
                    <div className="w-full bg-[#1A1A1A] border border-white/10 rounded-[20px] p-4 flex flex-col items-center shadow-2xl">
                      <p className="text-white/50 text-[10px] font-bold tracking-widest uppercase mb-1">Your Active Reward Code</p>
                      <p className="text-2xl font-black text-white tracking-[0.2em]">
-                       {displayRewards.find(r => r.status === 'ACTIVE')?.couponCode || 'CHECK OUT'}
+                       {displayRewards.find(r => r.status === 'ACTIVE')?.couponCode}
                      </p>
                      <p className="text-[#F6D365] text-[10px] font-bold tracking-widest uppercase mt-3 text-center">
                        Show this code at the Film Nagar counter
@@ -591,7 +718,7 @@ export default function App() {
                 </>
               )}
               
-              <div className="mt-4 flex items-center gap-1.5 opacity-40">
+              <div className="mt-4 flex items-center gap-1.5 text-white/40">
                 <MapPin size={12} />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Pop O' Bob — Film Nagar</span>
               </div>
