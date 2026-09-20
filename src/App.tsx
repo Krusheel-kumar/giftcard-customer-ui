@@ -773,7 +773,7 @@ export default function App() {
             <motion.div 
               initial={{ opacity: 0, y: "100%" }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: "100%" }} 
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="relative w-full sm:w-[440px] bg-white rounded-t-[32px] sm:rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] p-7 sm:p-9"
+              className="relative w-full sm:w-[440px] max-h-[90dvh] overflow-y-auto overscroll-contain bg-white rounded-t-[32px] sm:rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] p-7 sm:p-9 pb-[calc(1.75rem+env(safe-area-inset-bottom))]"
             >
               <button onClick={() => setStep('landing')} className="absolute top-6 right-6 text-black/40 hover:text-black transition-colors bg-black/5 hover:bg-black/10 rounded-full p-2.5">
                 ✕
