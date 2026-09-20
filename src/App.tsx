@@ -630,7 +630,7 @@ export default function App() {
               </button>
 
               <h2 className="text-[28px] md:text-[34px] font-black tracking-tight mb-2 text-[#1A1A1A]">Join the Journey</h2>
-              <p className="text-black/60 text-[13px] md:text-sm mb-8 font-semibold">Verify your number to securely lock in your 4 rewards.</p>
+              <p className="text-black/60 text-[13px] md:text-sm mb-8 font-semibold">Verify your number to securely lock in your 3 rewards.</p>
               
               {!window.configuration?.identifier ? (
                 <form onSubmit={handleSendOtp} className="space-y-6">
