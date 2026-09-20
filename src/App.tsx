@@ -319,31 +319,22 @@ export default function App() {
     { id: 3, sequence: 3, name: 'Free Boba', status: 'LOCKED' },
   ];
 
+  // Derive the current ticket to show in the Success Screen
+  const targetTicketReward = displayRewards.find(r => r.status === 'ACTIVE') 
+    || displayRewards.slice().reverse().find(r => r.status === 'REDEEMED' || r.status === 'EXPIRED') 
+    || displayRewards[0];
+  const isTicketUsed = targetTicketReward?.status === 'REDEEMED' || targetTicketReward?.status === 'EXPIRED';
+
   return (
     <div className="min-h-screen bg-[#0F0F0F] font-sans text-white overflow-x-hidden relative selection:bg-gold selection:text-black">
       {/* ============ FLOATING HEADER ============ */}
-      <header className="absolute top-0 left-0 w-full z-50 px-4 md:px-6 pt-2 md:pt-4 flex items-center justify-between pointer-events-none">
+      <header className="absolute top-0 left-0 w-full z-50 px-4 md:px-6 pt-2 md:pt-4 flex items-center justify-center pointer-events-none">
         
-        {/* LEFT: Brand Logo */}
-        <div className="pointer-events-auto ml-2 md:ml-4">
+        {/* CENTER: Brand Logo */}
+        <div className="pointer-events-auto">
           <img src={wordmark} alt="Pop O'Bob" className="h-20 md:h-28 w-auto object-contain drop-shadow-md" />
         </div>
 
-        {/* RIGHT: Location pill + Hamburger */}
-        <div className="flex items-center gap-3 md:gap-5 pointer-events-auto">
-          {/* Premium Frosted Glass Location Pill */}
-          <div className="hidden sm:flex items-center gap-1.5 bg-white/50 backdrop-blur-md border border-white/60 text-[#1A1A1A] text-[10px] md:text-xs font-black tracking-[0.2em] uppercase px-5 py-2.5 rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.06)]">
-            <MapPin size={14} className="text-[#D4AF37]" />
-            <span>Film Nagar</span>
-          </div>
-          
-          {/* Elegant Hamburger */}
-          <button className="flex flex-col gap-[5px] p-2 hover:bg-black/5 rounded-full transition-colors cursor-pointer bg-white/50 backdrop-blur-md border border-white/60 shadow-sm">
-            <span className="w-6 h-[2.5px] bg-[#1A1A1A] rounded-full"></span>
-            <span className="w-6 h-[2.5px] bg-[#1A1A1A] rounded-full"></span>
-            <span className="w-6 h-[2.5px] bg-[#1A1A1A] rounded-full"></span>
-          </button>
-        </div>
       </header>
 
       {/* ============ MAIN CONTENT ============ */}
@@ -351,60 +342,155 @@ export default function App() {
         <AnimatePresence mode="wait">
           {(step === 'landing' || step === 'otp') && (
             <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full">
-              {/* ===== HERO SECTION ===== */}
-              <div className="relative w-full h-[65vh] md:h-[75vh] min-h-[480px] overflow-hidden">
-                
-                {/* Store Image — fully visible */}
-                <img 
-                  src={heroImage} 
-                  alt="Pop O' Bob Film Nagar Store" 
-                  className="w-full h-full object-cover object-center"
-                />
-                
-                {/* Top White Gradient for Logo Visibility */}
-                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/95 via-white/50 to-transparent z-10 pointer-events-none"></div>
-                
-                {/* Subtle bottom scrim ONLY - so the image looks bright and full */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
-                  
-                  {/* Left scrim so text pops */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent pointer-events-none"></div>
+                  {/* ===== HERO SECTION ===== */}
+                  <div className="relative w-full h-[70vh] md:h-[80vh] min-h-[550px] overflow-hidden bg-black">
+                    
+                    {/* Store Image - Ken Burns Zoom Effect */}
+                    <motion.img 
+                      src={heroImage} 
+                      alt="Pop O' Bob Film Nagar Store" 
+                      initial={{ scale: 1.1 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 10, ease: "easeOut" }}
+                      className="w-full h-full object-cover object-center opacity-90"
+                    />
+                    
+                    {/* Floating Golden Orbs (Motion Graphics) - Pushed to periphery */}
+                    <motion.div 
+                      animate={{ y: [0, -20, 0], opacity: [0.15, 0.3, 0.15] }} 
+                      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} 
+                      className="absolute top-1/4 -left-10 w-48 h-48 bg-[#F4D160] rounded-full blur-[100px] mix-blend-screen pointer-events-none"
+                    />
+                    <motion.div 
+                      animate={{ y: [0, 30, 0], opacity: [0.1, 0.2, 0.1] }} 
+                      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }} 
+                      className="absolute bottom-1/4 -right-10 w-56 h-56 bg-[#F6D365] rounded-full blur-[120px] mix-blend-screen pointer-events-none"
+                    />
 
-                {/* Text Block — pinned to bottom-left */}
-                <div className="absolute bottom-0 left-0 w-full px-5 pb-8 z-10">
-                  
-                  {/* Highlighted Label */}
-                  <motion.div
-                    initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-                    className="mb-3"
-                  >
-                    <span className="inline-block bg-[#F6D365] text-[#1A1A1A] text-[9px] md:text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 rounded shadow-sm">
-                      Film Nagar Exclusive
-                    </span>
-                  </motion.div>
+                    {/* Top White Gradient for Logo Visibility */}
+                    <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/95 via-white/40 to-transparent z-10 pointer-events-none"></div>
+                    
+                    {/* Rich Cinematic Bottom Scrim */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                    
+                    {/* Subtle vignette */}
+                    <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)] pointer-events-none"></div>
 
-                  {/* Headline */}
-                  <motion.h1
-                    initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
-                    className="text-[28px] md:text-5xl font-bold leading-[1.2] text-white mb-4 tracking-tight drop-shadow-md"
-                  >
-                    Something <span className="text-[#F6D365] font-serif italic font-medium">special</span><br/>
-                    is waiting at Film Nagar
-                  </motion.h1>
+                    {/* Text Block — compact & centered at bottom */}
+                    <div className="absolute bottom-0 left-0 w-full px-5 pb-8 md:pb-12 z-20 flex flex-col items-center text-center">
+                      
+                        {/* Compact Group: Headline + Label */}
+                        <div className="flex flex-col items-center mb-6">
+                            {/* Dynamic Headline */}
+                            <motion.h1
+                              initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2, type: 'spring' }}
+                              className="text-[32px] md:text-[48px] font-black leading-[1.05] text-white mb-4 tracking-tight drop-shadow-2xl"
+                            >
+                              Something <motion.span 
+                                animate={{ opacity: [0.8, 1, 0.8], textShadow: ["0 0 10px rgba(246,211,101,0)", "0 0 20px rgba(246,211,101,0.6)", "0 0 10px rgba(246,211,101,0)"] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                                className="text-[#F6D365] font-serif italic font-medium inline-block"
+                              >special</motion.span><br/>
+                              is waiting for you <span className="text-[#F4D160]/80 font-light">at</span>
+                            </motion.h1>
 
-                  {/* Minimal Features */}
-                  <motion.div
-                    initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}
-                    className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-white/90 text-[11px] md:text-sm font-medium tracking-wide"
-                  >
-                    <span>Games & Activities</span>
-                    <span className="text-white/40 text-[8px] md:text-[10px]">●</span>
-                    <span>Outside Sitting</span>
-                    <span className="text-white/40 text-[8px] md:text-[10px]">●</span>
-                    <span>Pleasant Environment</span>
-                  </motion.div>
-                </div>
-              </div>
+                            {/* Highlighted Label - Compact Version */}
+                              <motion.div
+                                initial={{ y: 20, opacity: 0 }} 
+                                animate={{ y: 0, opacity: 1 }} 
+                                transition={{ delay: 0.3, type: 'spring', stiffness: 100, damping: 20 }}
+                                className="relative inline-block group"
+                              >
+                                <div className="absolute inset-0 bg-[#F4D160] blur-[15px] rounded-full opacity-40"></div>
+                                <span className="relative flex items-center gap-1.5 bg-gradient-to-r from-[#F4D160] to-[#F6D365] shadow-[0_0_20px_rgba(244,209,96,0.4)] text-[#111] text-[9px] md:text-[10px] font-black tracking-[0.2em] uppercase px-4 py-1.5 rounded-full border border-white/40 overflow-hidden">
+                                  <motion.div 
+                                    animate={{ x: ['-200%', '400%'] }} 
+                                    transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+                                    className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-30deg]"
+                                  ></motion.div>
+                                  <MapPin size={12} strokeWidth={2.5} className="text-[#111]" />
+                                  <span className="mt-[1px]">Pop O' Bob - Film Nagar</span>
+                                </span>
+                              </motion.div>
+
+                            {/* UX Value Proposition Subtitle */}
+                            <motion.p
+                              initial={{ y: 20, opacity: 0 }} 
+                              animate={{ y: 0, opacity: 1 }} 
+                              transition={{ delay: 0.35, type: 'spring' }}
+                              className="text-white/70 text-[11px] md:text-[13px] max-w-[280px] md:max-w-md mx-auto mt-5 leading-relaxed font-medium"
+                            >
+                              Join today. Unlock your <strong className="text-white font-bold">first reward</strong>. Complete your journey to unlock <strong className="text-[#F4D160] font-bold">more rewards</strong>.
+                            </motion.p>
+                        </div>
+
+                        {/* Step Flow - Looping Sliding Capsule */}
+                        <motion.div
+                          initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4, type: 'spring' }}
+                          className="flex items-center w-full max-w-[360px] mx-auto p-1 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.4)] relative overflow-hidden"
+                        >
+                          {/* Moving Highlight Capsule */}
+                          <motion.div
+                             animate={{ x: ["0%", "100%", "200%", "0%"] }}
+                             transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.33, 0.66, 1] }}
+                             className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-r from-[#F4D160] to-[#F6D365] shadow-[0_0_15px_rgba(244,209,96,0.3)] z-0 rounded-full"
+                          />
+
+                          {/* Step 1 */}
+                          <div className="flex flex-1 items-center justify-center gap-1.5 py-2.5 relative z-10">
+                             <motion.span 
+                               animate={{ color: ["#111111", "#ffffff", "#ffffff", "#111111"] }} 
+                               transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.33, 0.66, 1] }}
+                               className="w-4 h-4 bg-black/10 rounded-full flex items-center justify-center font-black text-[10px]"
+                             >1</motion.span>
+                             <motion.span 
+                               animate={{ color: ["#111111", "#ffffff", "#ffffff", "#111111"] }} 
+                               transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.33, 0.66, 1] }}
+                               className="text-[9.5px] md:text-[11px] font-black uppercase tracking-wider whitespace-nowrap"
+                             >Unlock</motion.span>
+                          </div>
+                          
+                          {/* Step 2 */}
+                          <div className="flex flex-1 items-center justify-center gap-1.5 py-2.5 relative z-10">
+                             <motion.span 
+                               animate={{ color: ["#ffffff", "#111111", "#ffffff", "#ffffff"] }} 
+                               transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.33, 0.66, 1] }}
+                               className="font-black text-[10px]"
+                             >2</motion.span>
+                             <motion.span 
+                               animate={{ color: ["#ffffff", "#111111", "#ffffff", "#ffffff"] }} 
+                               transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.33, 0.66, 1] }}
+                               className="text-[9.5px] md:text-[11px] font-black uppercase tracking-wider whitespace-nowrap"
+                             >Redeem</motion.span>
+                          </div>
+                          
+                          {/* Step 3 */}
+                          <div className="flex flex-1 items-center justify-center gap-1.5 py-2.5 relative z-10">
+                             <motion.span 
+                               animate={{ color: ["#ffffff", "#ffffff", "#111111", "#ffffff"] }} 
+                               transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.33, 0.66, 1] }}
+                               className="font-black text-[10px]"
+                             >3</motion.span>
+                             <motion.span 
+                               animate={{ color: ["#ffffff", "#ffffff", "#111111", "#ffffff"] }} 
+                               transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.33, 0.66, 1] }}
+                               className="text-[9.5px] md:text-[11px] font-black uppercase tracking-wider whitespace-nowrap"
+                             >Come Back</motion.span>
+                          </div>
+                        </motion.div>
+
+                        {/* Compact Premium Scroll Indicator */}
+                        <motion.div 
+                          animate={{ y: [0, 5, 0], opacity: [0.3, 0.8, 0.3] }} 
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          className="mt-6 flex flex-col items-center gap-1 cursor-pointer"
+                          onClick={() => document.getElementById('rewards-section')?.scrollIntoView({ behavior: 'smooth' })}
+                        >
+                          <span className="text-[8px] text-white/50 uppercase tracking-[0.3em] font-bold">Scroll</span>
+                          <div className="w-2.5 h-2.5 border-b border-r border-white/50 rotate-45"></div>
+                        </motion.div>
+                    </div>
+                  </div>
               
               <div id="rewards-section"></div>
               
@@ -500,19 +586,19 @@ export default function App() {
                              {cardDesc}
                            </p>
 
-                           {/* Unlock Button */}
-                           {isActive && (
-                             <button
-                               onClick={() => {
-                                 if (!journey) setStep('otp');
-                                 else setStep('success'); // Re-open the ticket pass
-                               }}
-                               className="w-full bg-[#F4D160] hover:bg-[#F2C94C] text-[#2C2B29] font-bold text-[12px] tracking-[0.05em] uppercase px-5 py-3.5 rounded-[12px] flex items-center justify-center gap-2 transition-all shadow-[0_2px_10px_rgba(244,209,96,0.3)]"
-                             >
-                               <Gift size={15} />
-                               {journey ? 'View Pass' : 'Unlock My Reward'}
-                             </button>
-                           )}
+                             {/* Unlock Button */}
+                             {isActive && (
+                               <button
+                                 onClick={() => {
+                                   if (!journey) setStep('otp');
+                                   else setStep('success'); // Re-open the ticket pass
+                                 }}
+                                 className="w-max bg-black/90 hover:bg-black text-[#F6D365] font-black text-[10px] tracking-[0.15em] uppercase px-6 py-3 rounded-full flex items-center justify-center gap-2 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.15)] backdrop-blur-md mt-2"
+                               >
+                                 <Gift size={13} className="text-[#F6D365]" />
+                                 {journey ? 'View Pass' : 'Claim Offer'}
+                               </button>
+                             )}
 
                            {/* Pending Unlock Timer */}
                            {isPending && reward.activatedAt && (
@@ -552,19 +638,19 @@ export default function App() {
                   </svg>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-black text-[#1A1A1A] mb-1 tracking-tight">You're In, {customerName.split(' ')[0]}!</h1>
-                <p className="text-[#1A1A1A]/60 font-semibold text-xs md:text-sm">Your first reward is locked and ready.</p>
+                <p className="text-[#1A1A1A]/60 font-semibold text-xs md:text-sm">{isTicketUsed ? 'This reward has already been used.' : 'Your reward is locked and ready.'}</p>
               </div>
 
               {/* Digital Pass Card */}
-              <div className="relative w-full max-w-[340px] bg-gradient-to-br from-[#B91C1C] to-[#7F1D1D] rounded-[28px] overflow-hidden shadow-[0_20px_50px_rgba(185,28,28,0.3)] border border-white/20 z-10 shrink-0">
+              <div className={`relative w-full max-w-[340px] bg-gradient-to-br ${isTicketUsed ? 'from-[#333] to-[#111] shadow-[0_20px_50px_rgba(0,0,0,0.5)] grayscale opacity-95' : 'from-[#B91C1C] to-[#7F1D1D] shadow-[0_20px_50px_rgba(185,28,28,0.3)]'} rounded-[28px] overflow-hidden border border-white/20 z-10 shrink-0`}>
                 {/* Text Watermark */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none flex flex-col justify-around -rotate-12 opacity-10 z-0 scale-110">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <div key={i} className={`text-white font-black text-[26px] tracking-widest whitespace-nowrap flex gap-4 ${i % 2 === 0 ? '-ml-8' : '-ml-24'}`}>
                       <span>THE BOBA STANDARD</span>
-                      <span className="opacity-50">•</span>
+                      <span className="opacity-50"> </span>
                       <span>THE BOBA STANDARD</span>
-                      <span className="opacity-50">•</span>
+                      <span className="opacity-50"> </span>
                       <span>THE BOBA STANDARD</span>
                     </div>
                   ))}
@@ -572,25 +658,27 @@ export default function App() {
 
                 {/* Pass Body */}
                 <div className="px-7 py-8 text-center relative z-10 flex flex-col min-h-[460px] justify-end">
-                  <div className="absolute top-6 left-1/2 -translate-x-1/2 inline-block bg-white text-[#B91C1C] text-[10px] font-black tracking-widest uppercase px-4 py-1.5 rounded-full shadow-lg">
-                    AVAILABLE NOW
+                  <div className={`absolute top-6 left-1/2 -translate-x-1/2 inline-block ${isTicketUsed ? 'bg-black/50 text-white/50 border border-white/10' : 'bg-white text-[#B91C1C]'} text-[10px] font-black tracking-widest uppercase px-4 py-1.5 rounded-full shadow-lg`}>
+                    {isTicketUsed ? 'REDEEMED' : 'AVAILABLE NOW'}
                   </div>
 
                   <div className="mt-6 flex flex-col flex-1 justify-end">
-                    <h3 className="text-white/80 text-[10px] font-bold tracking-[0.2em] uppercase mb-1 drop-shadow-sm">Welcome Reward</h3>
-                    <h2 className="text-[36px] leading-[1.1] font-black text-white mb-6 tracking-tight drop-shadow-sm">Buy 1 & Get 1</h2>
+                    <h3 className="text-white/80 text-[10px] font-bold tracking-[0.2em] uppercase mb-1 drop-shadow-sm">Reward #{targetTicketReward?.sequence || 1}</h3>
+                    <h2 className="text-[36px] leading-[1.1] font-black text-white mb-6 tracking-tight drop-shadow-sm">{targetTicketReward?.name || 'Offer'}</h2>
                     
-                    <div className="bg-white border border-white/40 rounded-[20px] p-5 mb-5 shadow-xl relative overflow-hidden">
-                      <p className="text-[#B91C1C]/60 text-[9px] font-black tracking-widest uppercase mb-1.5">Your Unique Code</p>
-                      <p className="text-[28px] font-black text-[#7F1D1D] tracking-[0.1em] drop-shadow-sm">{journey?.[0]?.couponCode || 'POP-TEST-1234'}</p>
+                    <div className={`bg-white border ${isTicketUsed ? 'border-black/40 opacity-70' : 'border-white/40'} rounded-[20px] p-5 mb-5 shadow-xl relative overflow-hidden`}>
+                      <p className={`${isTicketUsed ? 'text-[#111]/60' : 'text-[#B91C1C]/60'} text-[9px] font-black tracking-widest uppercase mb-1.5`}>Your Unique Code</p>
+                      <p className={`text-[28px] font-black ${isTicketUsed ? 'text-[#111]/50 line-through' : 'text-[#7F1D1D]'} tracking-[0.1em] drop-shadow-sm`}>{targetTicketReward?.couponCode || 'POP-TEST-1234'}</p>
                     </div>
 
                     <p className="text-white/80 text-[11px] font-medium mb-1.5">Valid at Film Nagar Outlet Only</p>
-                    <p className="text-white text-[11px] font-bold mb-6 drop-shadow-sm bg-black/15 inline-block px-4 py-1.5 rounded-full">Expires in 10 Days</p>
+                    <p className="text-white text-[11px] font-bold mb-6 drop-shadow-sm bg-black/15 inline-block px-4 py-1.5 rounded-full">
+                      {isTicketUsed ? 'Reward Used' : 'Expires in 10 Days'}
+                    </p>
 
                     <div className="pt-5 border-t border-white/20">
                       <p className="text-white/90 text-[11px] font-medium leading-relaxed px-4">
-                        Show this screen to the barista at checkout to claim your free boba.
+                        {isTicketUsed ? 'This reward has already been claimed. Check your journey for the next one.' : 'Show this screen to the barista at checkout to claim your offer.'}
                       </p>
                     </div>
                   </div>
@@ -704,38 +792,39 @@ export default function App() {
         {step === 'landing' && (!journey || displayRewards.some(r => r.status === 'ACTIVE')) && (
           <motion.div 
             initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-            className="fixed bottom-0 left-0 w-full z-50 p-5 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none"
+            className="fixed bottom-4 left-0 w-full z-50 px-4 pointer-events-none"
           >
-            <div className="max-w-md mx-auto flex flex-col items-center pointer-events-auto">
+            <div className="max-w-md mx-auto flex flex-col items-center pointer-events-auto bg-[#111]/80 backdrop-blur-3xl border border-white/10 p-4 md:p-5 rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
               {!journey ? (
                 <>
                   <button 
                     onClick={() => setStep('otp')}
-                    className="w-full bg-[#F6D365] text-black font-black text-[15px] py-4 rounded-[20px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_10px_30px_rgba(246,211,101,0.2)]"
+                    className="w-full bg-gradient-to-r from-[#F4D160] to-[#F6D365] text-[#111] font-black text-[13px] tracking-[0.1em] uppercase py-3.5 rounded-[16px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_20px_rgba(244,209,96,0.3)]"
                   >
-                    🎁 UNLOCK MY REWARD
+                    <Gift size={16} strokeWidth={2.5} />
+                    Unlock First Reward
                   </button>
-                  <p className="text-white/60 text-[11px] font-medium mt-3 text-center">
-                    Complete your journey. Enjoy more at Film Nagar.
+                  <p className="text-white/50 text-[9px] md:text-[10px] font-bold tracking-[0.05em] mt-3 text-center uppercase">
+                    Complete your journey &middot; Enjoy more
                   </p>
                 </>
               ) : (
                 <>
-                   <div className="w-full bg-[#1A1A1A] border border-white/10 rounded-[20px] p-4 flex flex-col items-center shadow-2xl">
-                     <p className="text-white/50 text-[10px] font-bold tracking-widest uppercase mb-1">Your Active Reward Code</p>
-                     <p className="text-2xl font-black text-white tracking-[0.2em]">
+                   <div className="w-full bg-[#1A1A1A] border border-white/10 rounded-[16px] p-4 flex flex-col items-center shadow-inner">
+                     <p className="text-white/50 text-[9px] font-bold tracking-widest uppercase mb-1">Your Active Reward Code</p>
+                     <p className="text-2xl font-black text-[#F4D160] tracking-[0.2em]">
                        {displayRewards.find(r => r.status === 'ACTIVE')?.couponCode}
                      </p>
-                     <p className="text-[#F6D365] text-[10px] font-bold tracking-widest uppercase mt-3 text-center">
-                       Show this code at the Film Nagar counter
+                     <p className="text-white/60 text-[9px] font-bold tracking-widest uppercase mt-3 text-center">
+                       Show this code at the counter
                      </p>
                    </div>
                 </>
               )}
               
-              <div className="mt-4 flex items-center gap-1.5 text-white/40">
+              <div className="mt-3 flex items-center gap-1.5 text-white/30">
                 <MapPin size={12} />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Pop O' Bob — Film Nagar</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest">Pop O' Bob - Film Nagar</span>
               </div>
             </div>
           </motion.div>
