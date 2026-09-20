@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Gift, Lock, MapPin, Phone } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { Gift, Lock, MapPin, Phone, ChevronsRight, Check } from 'lucide-react';
 import './index.css';
 
 import wordmark from './assets/Horizontal Wordmark with Emblem.png';
@@ -117,7 +117,11 @@ export default function App() {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [journey, setJourney] = useState<Reward[] | null>(null);
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const textOpacity = useTransform(x, [0, 80], [1, 0]);
 
   useEffect(() => {
     // 1. Check URL for token (Magic Link from WhatsApp)
@@ -508,9 +512,14 @@ export default function App() {
                   <h2 className="text-[26px] md:text-4xl font-black text-[#1A1A1A] mb-2 tracking-tight">
                     3 EXCLUSIVE REWARDS
                   </h2>
-                  <p className="text-xs md:text-sm text-[#1A1A1A]/60 font-medium">
-                    Visit. Collect. Enjoy more at Film Nagar.
-                  </p>
+                  <div className="flex flex-col items-center gap-2 mt-3">
+                    <p className="text-[13px] md:text-[14px] text-[#111]/70 font-medium">
+                      Claim <span className="text-[#111] font-black">one reward</span> per visit.
+                    </p>
+                    <span className="inline-flex items-center gap-1.5 bg-orange-100/80 text-orange-700 px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black tracking-widest uppercase shadow-sm border border-orange-200/50">
+                      <Lock size={10} strokeWidth={3} /> Next reward unlocks after 24h
+                    </span>
+                  </div>
                 </div>
 
                 {/* Connected Journey Timeline */}
@@ -839,62 +848,78 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* --- UNIFIED BOTTOM DOCK (Only on landing) --- */}
+      {/* --- SLIDE TO UNLOCK DOCK (Only on landing) --- */}
       <AnimatePresence>
         {step === 'landing' && (!journey || displayRewards.some(r => r.status === 'ACTIVE')) && (
           <motion.div 
             initial={{ y: 120 }} animate={{ y: 0 }} exit={{ y: 120 }} transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-            className="fixed bottom-5 left-0 w-full z-50 px-4 pointer-events-none"
+            className="fixed bottom-6 left-0 w-full z-50 px-5 pointer-events-none"
           >
-              <div className="max-w-[420px] mx-auto flex items-center gap-2.5 pointer-events-auto">
-                
-                {/* Contact Action */}
-                <a href="tel:+919999999999" className="w-[56px] h-[56px] shrink-0 rounded-full bg-[#111]/95 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white hover:bg-black transition-all shadow-[0_10px_30px_rgba(0,0,0,0.25)] hover:-translate-y-1 active:translate-y-0">
-                  <Phone size={22} className="opacity-80" />
-                </a>
+              <div className="max-w-[340px] mx-auto pointer-events-auto">
+                {!journey ? (
+                  <div className="h-[64px] bg-[#1A1A1A]/95 backdrop-blur-3xl rounded-full p-1.5 relative flex items-center shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden">
+                    
+                    {/* Drag Bounds */}
+                    <div className="absolute inset-1.5 pointer-events-none" ref={containerRef} />
 
-                {/* Primary CTA */}
-                <div className="flex-1 relative flex">
-                  {!journey ? (
-                    <motion.button 
-                      onClick={() => setStep('otp')}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                      className="w-full bg-gradient-to-r from-[#F4D160] to-[#F6D365] text-[#111] py-4 rounded-[28px] flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(244,209,96,0.35),inset_0_2px_10px_rgba(255,255,255,0.4)] border border-[#F4D160]/40 relative overflow-hidden"
+                    {/* Shimmering Text Background */}
+                    <motion.div 
+                      className="absolute inset-0 flex items-center justify-center pl-10 pointer-events-none"
+                      style={{ opacity: textOpacity }}
                     >
-                      {/* Ultra-Smooth Light Shimmer Sweep */}
-                      <motion.div 
-                        animate={{ x: ['-200%', '250%'] }} 
-                        transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
-                        className="absolute top-0 left-0 w-[150%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-45deg] pointer-events-none"
-                      />
-                      <div className="flex items-center gap-2 font-black text-[13px] md:text-[14px] tracking-[0.15em] uppercase relative z-10">
-                        <Gift size={16} strokeWidth={2.5} />
-                        <span>Unlock Rewards</span>
-                      </div>
-                      <span className="text-[#111]/60 text-[8px] font-bold tracking-[0.1em] uppercase mt-1 relative z-10">
-                        Enter mobile to start
+                      {/* CSS gradient shimmer effect */}
+                      <span className="font-black text-[11px] md:text-[12px] tracking-[0.15em] uppercase bg-gradient-to-r from-white/30 via-white/80 to-white/30 bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite] bg-clip-text text-transparent">
+                        Slide to Unlock Reward
                       </span>
-                    </motion.button>
-                  ) : (
-                     <button onClick={() => setStep('success')} className="w-full bg-[#111]/95 backdrop-blur-3xl border border-white/10 rounded-[28px] h-[56px] flex flex-col items-center justify-center shadow-[0_-5px_25px_rgba(0,0,0,0.25)] relative overflow-hidden group hover:bg-black transition-colors">
-                       <p className="text-white/50 text-[7px] font-black tracking-[0.2em] uppercase mb-1 relative z-10 group-hover:text-white/70 transition-colors">View Your Pass</p>
+                    </motion.div>
+                    
+                    {/* Draggable Thumb */}
+                    <motion.div
+                      className={`w-[52px] h-[52px] ${isUnlocked ? 'bg-[#F4D160]' : 'bg-gradient-to-tr from-[#F4D160] to-[#F6D365]'} rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing shadow-[0_4px_15px_rgba(244,209,96,0.4)] z-10 relative pointer-events-auto hover:scale-105 active:scale-95 transition-all duration-300`}
+                      drag={isUnlocked ? false : "x"} // Disable drag once unlocked
+                      dragConstraints={containerRef}
+                      dragElastic={0.02} // Firm, solid drag feel
+                      dragSnapToOrigin={!isUnlocked}
+                      onDragEnd={(_, info) => {
+                        // If they slide more than 160px (safe on tiny phones too), unlock!
+                        if (info.offset.x > 160) {
+                          setIsUnlocked(true); // Triggers success checkmark
+                          // Wait for visual satisfaction before navigating
+                          setTimeout(() => {
+                            setStep('otp');
+                            // Reset state implicitly in background so it's ready if they go back
+                            setTimeout(() => {
+                              setIsUnlocked(false);
+                              x.set(0);
+                            }, 500);
+                          }, 500);
+                        }
+                      }}
+                      style={{ x }}
+                    >
+                      {/* Butter-Smooth Trailing Background Fill */}
+                      <div className="absolute right-[26px] top-0 bottom-0 w-[500px] bg-gradient-to-r from-[#F4D160]/5 via-[#F4D160]/40 to-[#F4D160]/80 pointer-events-none rounded-l-full -z-10" />
+
+                      {isUnlocked ? (
+                         <Check size={26} className="text-[#111]" strokeWidth={3} />
+                      ) : (
+                         <ChevronsRight size={24} className="text-[#111] ml-0.5 animate-pulse" />
+                      )}
+                    </motion.div>
+                  </div>
+                ) : (
+                  <div className="bg-[#1A1A1A]/95 backdrop-blur-3xl p-1.5 rounded-full border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+                     <button onClick={() => setStep('success')} className="w-full h-[52px] bg-transparent flex flex-col items-center justify-center group hover:bg-white/5 rounded-full transition-colors relative overflow-hidden px-8">
+                       <p className="text-white/40 text-[7.5px] font-bold tracking-[0.2em] uppercase mb-0.5 group-hover:text-white/60 transition-colors">View Your Pass</p>
                        <div className="flex items-center gap-1.5 relative z-10">
-                         <Gift size={12} className="text-[#F4D160]" />
-                         <p className="text-[14px] md:text-[16px] font-black text-[#F4D160] tracking-[0.15em] leading-none">
+                         <Gift size={11} className="text-[#F4D160]" />
+                         <p className="text-[14px] font-black text-[#F4D160] tracking-[0.15em] leading-none mt-0.5">
                            {displayRewards.find(r => r.status === 'ACTIVE')?.couponCode || 'ACTIVE PASS'}
                          </p>
                        </div>
                      </button>
-                  )}
-                </div>
-
-                {/* Map Action */}
-                <a href="https://maps.google.com/?q=Pop+O+Bob+Film+Nagar" target="_blank" rel="noopener noreferrer" className="w-[56px] h-[56px] shrink-0 rounded-full bg-gradient-to-tr from-[#F4D160] to-[#F6D365] border border-white/40 flex items-center justify-center text-[#111] hover:brightness-110 transition-all shadow-[0_10px_30px_rgba(244,209,96,0.3)] hover:-translate-y-1 active:translate-y-0">
-                  <MapPin size={22} />
-                </a>
-
+                  </div>
+                )}
               </div>
           </motion.div>
         )}
