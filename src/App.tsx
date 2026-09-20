@@ -364,10 +364,11 @@ export default function App() {
                 {/* Top White Gradient for Logo Visibility */}
                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/95 via-white/50 to-transparent z-10 pointer-events-none"></div>
                 
-                {/* Subtle bottom scrim ONLY — so the image looks bright and full */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none"></div>
-                {/* Left scrim so text pops */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                {/* Subtle bottom scrim ONLY - so the image looks bright and full */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
+                  
+                  {/* Left scrim so text pops */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent pointer-events-none"></div>
 
                 {/* Text Block — pinned to bottom-left */}
                 <div className="absolute bottom-0 left-0 w-full px-5 pb-8 z-10">
