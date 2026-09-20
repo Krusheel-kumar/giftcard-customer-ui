@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gift, Lock, MapPin } from 'lucide-react';
+import { Gift, Lock, MapPin, Phone } from 'lucide-react';
 import './index.css';
 
 import wordmark from './assets/Horizontal Wordmark with Emblem.png';
@@ -328,10 +328,10 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#0F0F0F] font-sans text-white overflow-x-hidden relative selection:bg-gold selection:text-black">
       {/* ============ FLOATING HEADER ============ */}
-      <header className="absolute top-0 left-0 w-full z-50 px-4 md:px-6 pt-0 flex items-center justify-center pointer-events-none">
+      <header className="absolute top-0 left-0 w-full z-50 pointer-events-none h-24">
         
         {/* CENTER: Brand Logo */}
-        <div className="pointer-events-auto -mt-2 md:-mt-4">
+        <div className="absolute top-0 md:-top-2 left-1/2 -translate-x-1/2 pointer-events-auto">
           <img src={wordmark} alt="Pop O'Bob" className="h-20 md:h-28 w-auto object-contain drop-shadow-md" />
         </div>
 
@@ -718,10 +718,20 @@ export default function App() {
                       {isTicketUsed ? 'Reward Used' : 'Expires in 10 Days'}
                     </p>
 
-                    <div className="pt-5 border-t border-white/20">
-                      <p className="text-white/90 text-[11px] font-medium leading-relaxed px-4">
+                    <div className="pt-5 pb-2 border-t border-white/20">
+                      <p className="text-white/90 text-[11px] font-medium leading-relaxed px-4 mb-4">
                         {isTicketUsed ? 'This reward has already been claimed. Check your journey for the next one.' : 'Show this screen to the barista at checkout to claim your offer.'}
                       </p>
+                      
+                      {/* Ticket Actions */}
+                      <div className="flex items-center justify-center gap-3 px-5">
+                        <a href="tel:+919999999999" className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[14px] bg-white/10 hover:bg-white/20 text-white font-bold text-[10px] tracking-widest uppercase transition-colors border border-white/10">
+                          <Phone size={12} /> Call
+                        </a>
+                        <a href="https://maps.google.com/?q=Pop+O+Bob+Film+Nagar" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[14px] bg-white text-[#991B1B] hover:bg-gray-100 font-black text-[10px] tracking-widest uppercase transition-colors shadow-[0_4px_10px_rgba(0,0,0,0.2)]">
+                          <MapPin size={12} /> Directions
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -829,47 +839,62 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* --- FIXED BOTTOM CTA (Only on landing) --- */}
+      {/* --- UNIFIED BOTTOM DOCK (Only on landing) --- */}
       <AnimatePresence>
         {step === 'landing' && (!journey || displayRewards.some(r => r.status === 'ACTIVE')) && (
           <motion.div 
-            initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-            className="fixed bottom-5 left-0 w-full z-50 px-5 pointer-events-none"
+            initial={{ y: 120 }} animate={{ y: 0 }} exit={{ y: 120 }} transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+            className="fixed bottom-5 left-0 w-full z-50 px-4 pointer-events-none"
           >
-              <div className="max-w-[380px] mx-auto flex flex-col items-center pointer-events-auto">
-                {!journey ? (
-                  <motion.button 
-                    onClick={() => setStep('otp')}
-                    whileHover={{ scale: 1.015 }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="w-full bg-gradient-to-r from-[#F4D160] to-[#F6D365] text-[#111] py-4 rounded-full flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(244,209,96,0.35),0_0_20px_rgba(0,0,0,0.1)] border border-white/40 relative overflow-hidden"
-                  >
-                    {/* Ultra-Smooth Light Shimmer Sweep */}
-                    <motion.div 
-                      animate={{ x: ['-200%', '250%'] }} 
-                      transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
-                      className="absolute top-0 left-0 w-[150%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-45deg] pointer-events-none"
-                    />
-                    <div className="flex items-center gap-2 font-black text-[13px] md:text-[14px] tracking-[0.15em] uppercase relative z-10">
-                      <Gift size={16} strokeWidth={2.5} />
-                      <span>Unlock My Rewards</span>
-                    </div>
-                    <span className="text-[#111]/60 text-[8px] font-bold tracking-[0.1em] uppercase mt-1 relative z-10">
-                      Enter mobile to start or continue
-                    </span>
-                  </motion.button>
-                ) : (
-                   <div className="w-full bg-[#111]/95 backdrop-blur-3xl border border-white/10 rounded-[32px] p-5 flex flex-col items-center shadow-[0_-10px_40px_rgba(0,0,0,0.25)] relative overflow-hidden">
-                     <p className="text-white/50 text-[9px] font-bold tracking-widest uppercase mb-1.5 relative z-10">Your Active Code</p>
-                     <p className="text-[32px] font-black text-[#F4D160] tracking-[0.2em] relative z-10">
-                       {displayRewards.find(r => r.status === 'ACTIVE')?.couponCode}
-                     </p>
-                     <p className="text-white/40 text-[9px] font-bold tracking-widest uppercase mt-3 text-center relative z-10">
-                       Show this code at the counter
-                     </p>
-                   </div>
-                )}
+              <div className="max-w-[420px] mx-auto flex items-center gap-2.5 pointer-events-auto">
+                
+                {/* Contact Action */}
+                <a href="tel:+919999999999" className="w-[56px] h-[56px] shrink-0 rounded-full bg-[#111]/95 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white hover:bg-black transition-all shadow-[0_10px_30px_rgba(0,0,0,0.25)] hover:-translate-y-1 active:translate-y-0">
+                  <Phone size={22} className="opacity-80" />
+                </a>
+
+                {/* Primary CTA */}
+                <div className="flex-1 relative flex">
+                  {!journey ? (
+                    <motion.button 
+                      onClick={() => setStep('otp')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      className="w-full bg-gradient-to-r from-[#F4D160] to-[#F6D365] text-[#111] py-4 rounded-[28px] flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(244,209,96,0.35),inset_0_2px_10px_rgba(255,255,255,0.4)] border border-[#F4D160]/40 relative overflow-hidden"
+                    >
+                      {/* Ultra-Smooth Light Shimmer Sweep */}
+                      <motion.div 
+                        animate={{ x: ['-200%', '250%'] }} 
+                        transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+                        className="absolute top-0 left-0 w-[150%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-45deg] pointer-events-none"
+                      />
+                      <div className="flex items-center gap-2 font-black text-[13px] md:text-[14px] tracking-[0.15em] uppercase relative z-10">
+                        <Gift size={16} strokeWidth={2.5} />
+                        <span>Unlock Rewards</span>
+                      </div>
+                      <span className="text-[#111]/60 text-[8px] font-bold tracking-[0.1em] uppercase mt-1 relative z-10">
+                        Enter mobile to start
+                      </span>
+                    </motion.button>
+                  ) : (
+                     <button onClick={() => setStep('success')} className="w-full bg-[#111]/95 backdrop-blur-3xl border border-white/10 rounded-[28px] h-[56px] flex flex-col items-center justify-center shadow-[0_-5px_25px_rgba(0,0,0,0.25)] relative overflow-hidden group hover:bg-black transition-colors">
+                       <p className="text-white/50 text-[7px] font-black tracking-[0.2em] uppercase mb-1 relative z-10 group-hover:text-white/70 transition-colors">View Your Pass</p>
+                       <div className="flex items-center gap-1.5 relative z-10">
+                         <Gift size={12} className="text-[#F4D160]" />
+                         <p className="text-[14px] md:text-[16px] font-black text-[#F4D160] tracking-[0.15em] leading-none">
+                           {displayRewards.find(r => r.status === 'ACTIVE')?.couponCode || 'ACTIVE PASS'}
+                         </p>
+                       </div>
+                     </button>
+                  )}
+                </div>
+
+                {/* Map Action */}
+                <a href="https://maps.google.com/?q=Pop+O+Bob+Film+Nagar" target="_blank" rel="noopener noreferrer" className="w-[56px] h-[56px] shrink-0 rounded-full bg-gradient-to-tr from-[#F4D160] to-[#F6D365] border border-white/40 flex items-center justify-center text-[#111] hover:brightness-110 transition-all shadow-[0_10px_30px_rgba(244,209,96,0.3)] hover:-translate-y-1 active:translate-y-0">
+                  <MapPin size={22} />
+                </a>
+
               </div>
           </motion.div>
         )}
