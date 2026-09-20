@@ -328,10 +328,10 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#0F0F0F] font-sans text-white overflow-x-hidden relative selection:bg-gold selection:text-black">
       {/* ============ FLOATING HEADER ============ */}
-      <header className="absolute top-0 left-0 w-full z-50 px-4 md:px-6 pt-2 md:pt-4 flex items-center justify-center pointer-events-none">
+      <header className="absolute top-0 left-0 w-full z-50 px-4 md:px-6 pt-0 flex items-center justify-center pointer-events-none">
         
         {/* CENTER: Brand Logo */}
-        <div className="pointer-events-auto">
+        <div className="pointer-events-auto -mt-2 md:-mt-4">
           <img src={wordmark} alt="Pop O'Bob" className="h-20 md:h-28 w-auto object-contain drop-shadow-md" />
         </div>
 
@@ -513,12 +513,13 @@ export default function App() {
                   </p>
                 </div>
 
-                {/* Grid for 3 items (first two side by side, third full width) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 max-w-4xl mx-auto relative z-10">
+                {/* Connected Journey Timeline */}
+                <div className="flex flex-col max-w-[480px] mx-auto relative z-10 px-4 md:px-0">
                   {displayRewards.map((reward, i) => {
                     const isActive = reward.status === 'ACTIVE' || (!journey && i === 0);
                     const isPending = reward.status === 'PENDING_UNLOCK';
                     const isLocked = reward.status === 'LOCKED' || (!journey && i > 0);
+                    const isRedeemed = reward.status === 'REDEEMED' || reward.status === 'EXPIRED';
 
                     let cardDesc = "";
                     const seq = reward.sequence || (i + 1);
@@ -530,93 +531,134 @@ export default function App() {
                       cardDesc = "You made it! Claim your free Boba tea!";
                     }
 
-                    // Make the 3rd reward span 2 columns on desktop
-                    const spanClass = seq === 3 ? "md:col-span-2" : "";
+                    // Determine if previous reward was completed to fill the connecting line
+                    const prevReward = i > 0 ? displayRewards[i - 1] : null;
+                    const prevIsRedeemed = prevReward ? (prevReward.status === 'REDEEMED' || prevReward.status === 'EXPIRED') : false;
 
                     // Boba Images
                     const bobaImgs = [
-                      bogoImg, // User's Buy One Get One image
-                      off20Img, // User's 20% OFF image
-                      bobaFoodImg, // User's Boba + Food image
-                      milestoneImg // User's Milestone image
+                      bogoImg, // 1st reward
+                      off20Img, // 2nd reward
+                      milestoneImg, // 3rd reward (Milestone)
+                      bobaFoodImg
                     ];
 
                     const overlayColor = isActive ? '#FFFDF6' : isPending ? '#F0F8FF' : '#FFFFFF';
 
                     return (
-                      <motion.div 
-                        key={i}
-                        whileHover={!isLocked && !isPending ? { y: -5, scale: 1.02 } : {}}
-                        transition={{ type: "spring", stiffness: 300 }}
-                        className={`relative rounded-[24px] p-1 overflow-hidden group ${isLocked || isPending ? 'opacity-80' : ''} ${spanClass}`}
-                      >
-                        <div className={`relative flex flex-col justify-between overflow-hidden rounded-[24px] md:rounded-3xl p-5 md:p-6 transition-all shadow-lg min-h-[260px] md:min-h-[280px]
-                        ${isActive 
-                          ? 'bg-[#FFFDF6] border border-[#F6D365]/20' 
-                          : isPending 
-                            ? 'bg-blue-50/40 border border-blue-200/50' 
-                            : 'bg-white border border-black/5'}`}>
-                        
-                        {/* Status Label & Icon */}
-                        <div className="flex justify-between items-start z-10 relative">
-                           <div className={`px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wide ${isActive ? 'bg-[#F4D160] text-[#2C2B29]' : isPending ? 'bg-blue-100 text-blue-800' : 'bg-black/5 text-black/40'}`}>
-                             {isActive ? (journey ? 'ACTIVATED' : 'AVAILABLE') : isPending ? 'UNLOCKING SOON' : isLocked ? 'LOCKED' : 'REDEEMED'}
-                           </div>
-                           {!isActive && (
-                             <div className="text-black/20 p-1.5 bg-black/5 rounded-full">
-                               {isPending ? <div className="text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div> : <Lock size={14} className="md:w-5 md:h-5" />}
-                             </div>
-                           )}
-                        </div>
-
-                        {/* Image inside Card */}
-                        <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden rounded-inherit">
-                           <img src={bobaImgs[i]} alt="Boba Reward" className={`w-full h-full object-cover object-center ${isActive ? 'opacity-80' : 'opacity-60'} mix-blend-multiply grayscale-[${isActive ? '0' : '100%'}]`} style={{ filter: isActive ? 'none' : isPending ? 'grayscale(50%) opacity(70%)' : 'grayscale(100%) opacity(60%)' }} />
-                           {/* Soft fade overlay to softly blend the image and help text readability */}
-                           <div className="absolute inset-0 bg-gradient-to-r to-transparent" style={{ backgroundImage: `linear-gradient(to right, ${overlayColor}CC, ${overlayColor}66, transparent)` }}></div>
-                           <div className="absolute inset-0 bg-gradient-to-t via-transparent to-transparent" style={{ backgroundImage: `linear-gradient(to top, ${overlayColor}99, transparent, transparent)` }}></div>
-                        </div>
-
-                        {/* Content */}
-                        <div className="z-10 mt-auto relative pt-16">
-                           <h3 className={`text-[22px] md:text-[28px] font-black leading-tight mb-2 ${isActive ? 'text-black' : 'text-black/90'}`}>
-                             {reward.name}
-                           </h3>
-                           <p className={`text-[13px] md:text-[15px] font-bold leading-relaxed mb-6 max-w-[85%] ${isActive ? 'text-black/75' : 'text-black/50'}`}>
-                             {cardDesc}
-                           </p>
-
-                             {/* Unlock Button */}
-                             {isActive && (
-                               <button
-                                 onClick={() => {
-                                   if (!journey) setStep('otp');
-                                   else setStep('success'); // Re-open the ticket pass
-                                 }}
-                                 className="w-max bg-black/90 hover:bg-black text-[#F6D365] font-black text-[10px] tracking-[0.15em] uppercase px-6 py-3 rounded-full flex items-center justify-center gap-2 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.15)] backdrop-blur-md mt-2"
-                               >
-                                 <Gift size={13} className="text-[#F6D365]" />
-                                 {journey ? 'View Pass' : 'Claim Offer'}
-                               </button>
-                             )}
-
-                           {/* Pending Unlock Timer */}
-                           {isPending && reward.activatedAt && (
-                             <div className="w-full flex flex-col items-center justify-center mt-2 pt-4 border-t border-black/5">
-                               <span className="text-[10px] uppercase font-black tracking-widest text-[#1A1A1A]/50 bg-white/40 px-3 py-1 rounded-full mb-1 backdrop-blur-sm shadow-sm">Reward Unlocks In</span>
-                               <CountdownTimer targetDate={reward.activatedAt} />
-                             </div>
-                           )}
-                        </div>
-                        
-                        {/* Decorative Crown for last reward */}
-                        {seq === 3 && (
-                          <div className="absolute right-4 top-12 text-3xl md:text-4xl opacity-20 blur-[1px] pointer-events-none rotate-12">
-                             👑
+                      <div key={i} className="flex relative w-full items-stretch">
+                        {/* Timeline Sidebar */}
+                        <div className="flex flex-col items-center mr-5 md:mr-7 mt-5">
+                          {/* Step Indicator Circle */}
+                          <div className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center font-black text-[12px] md:text-[13px] shadow-sm z-20 transition-all duration-700 ease-out shrink-0
+                            ${isActive ? 'bg-[#F4D160] text-[#111] ring-[5px] ring-[#F4D160]/30 shadow-[0_0_20px_rgba(244,209,96,0.5)] scale-110' : 
+                              isRedeemed ? 'bg-[#111] text-[#F4D160]' : 
+                              'bg-[#F5F5F5] border-[2px] border-black/10 text-black/30'}`}
+                          >
+                            {isRedeemed ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            ) : seq}
                           </div>
-                        )}
+                          
+                          {/* Connecting Vertical Line (renders for all except last item) */}
+                          {i < displayRewards.length - 1 && (
+                            <div className="w-[3px] flex-1 min-h-[30px] my-2 bg-black/5 rounded-full overflow-hidden relative">
+                               <motion.div 
+                                 initial={{ height: 0 }}
+                                 animate={{ height: prevIsRedeemed ? '100%' : '0%' }}
+                                 transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+                                 className="absolute top-0 left-0 w-full bg-[#111]"
+                               />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Card Content Container */}
+                        <div className={`flex-1 pb-8 md:pb-10 ${i === displayRewards.length - 1 ? 'pb-0 md:pb-0' : ''}`}>
+                          <motion.div 
+                            initial={{ opacity: 0, y: 15 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                            whileHover={!isLocked && !isPending && !isRedeemed ? { y: -5, scale: 1.02 } : {}}
+                            transition={{ type: "spring", stiffness: 300, duration: 0.6 }}
+                            className={`relative rounded-[24px] p-1 overflow-hidden group transition-all duration-700 ease-out
+                              ${isLocked || isPending ? 'opacity-80' : ''} 
+                              ${isRedeemed ? 'opacity-65 grayscale-[30%]' : ''}`}
+                          >
+                            <div className={`relative flex flex-col justify-between overflow-hidden rounded-[24px] md:rounded-3xl p-5 md:p-6 transition-all duration-500 shadow-lg min-h-[260px] md:min-h-[280px]
+                            ${isActive 
+                              ? 'bg-[#FFFDF6] border border-[#F6D365]/30' 
+                              : isPending 
+                                ? 'bg-blue-50/40 border border-blue-200/50' 
+                                : 'bg-white border border-black/5'}`}>
+                            
+                            {/* Status Label & Icon */}
+                            <div className="flex justify-between items-start z-10 relative">
+                               <div className={`px-3 py-1.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wide transition-colors duration-500
+                                ${isActive ? 'bg-[#F4D160] text-[#2C2B29]' : isRedeemed ? 'bg-black/10 text-black/60' : isPending ? 'bg-blue-100 text-blue-800' : 'bg-black/5 text-black/40'}`}>
+                                 {isRedeemed ? 'REDEEMED' : isActive ? (journey ? 'AVAILABLE' : 'AVAILABLE') : isPending ? 'UNLOCKING SOON' : 'LOCKED'}
+                               </div>
+                               {!isActive && (
+                                 <div className="text-black/30 p-1.5 bg-black/5 rounded-full">
+                                   {isRedeemed ? <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 md:w-4 md:h-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg> : 
+                                    isPending ? <div className="text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div> : 
+                                    <Lock size={14} className="md:w-5 md:h-5" />}
+                                 </div>
+                               )}
+                            </div>
+
+                            {/* Image inside Card */}
+                            <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden rounded-inherit">
+                               <img src={bobaImgs[i]} alt="Boba Reward" className={`w-full h-full object-cover object-center transition-all duration-700 ease-out ${isActive ? 'opacity-80' : 'opacity-60'} mix-blend-multiply`} style={{ filter: isActive ? 'none' : isPending ? 'grayscale(50%) opacity(70%)' : 'grayscale(100%) opacity(60%)' }} />
+                               {/* Soft fade overlay to softly blend the image and help text readability */}
+                               <div className="absolute inset-0 bg-gradient-to-r to-transparent" style={{ backgroundImage: `linear-gradient(to right, ${overlayColor}CC, ${overlayColor}66, transparent)` }}></div>
+                               <div className="absolute inset-0 bg-gradient-to-t via-transparent to-transparent" style={{ backgroundImage: `linear-gradient(to top, ${overlayColor}99, transparent, transparent)` }}></div>
+                            </div>
+
+                            {/* Content */}
+                            <div className="z-10 mt-auto relative pt-16">
+                               <h3 className={`text-[22px] md:text-[28px] font-black leading-tight mb-2 transition-colors duration-500 ${isActive ? 'text-black' : 'text-black/90'}`}>
+                                 {reward.name}
+                               </h3>
+                               <p className={`text-[13px] md:text-[15px] font-bold leading-relaxed max-w-[85%] transition-colors duration-500 ${isActive ? 'text-black/75 mb-6' : 'text-black/50 mb-0'}`}>
+                                 {cardDesc}
+                               </p>
+
+                                 {/* Unlock Button */}
+                                 {isActive && (
+                                   <button
+                                     onClick={() => {
+                                       if (!journey) setStep('otp');
+                                       else setStep('success'); // Re-open the ticket pass
+                                     }}
+                                     className="w-max bg-black/90 hover:bg-black text-[#F6D365] font-black text-[10px] tracking-[0.15em] uppercase px-6 py-3 rounded-full flex items-center justify-center gap-2 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.15)] backdrop-blur-md mt-2"
+                                   >
+                                     <Gift size={13} className="text-[#F6D365]" />
+                                     {journey ? 'View Pass' : 'Claim Offer'}
+                                   </button>
+                                 )}
+
+                               {/* Pending Unlock Timer */}
+                               {isPending && reward.activatedAt && (
+                                 <div className="w-full flex flex-col items-center justify-center mt-6 pt-4 border-t border-black/5">
+                                   <span className="text-[10px] uppercase font-black tracking-widest text-[#1A1A1A]/50 bg-white/40 px-3 py-1 rounded-full mb-1 backdrop-blur-sm shadow-sm">Reward Unlocks In</span>
+                                   <CountdownTimer targetDate={reward.activatedAt} />
+                                 </div>
+                               )}
+                            </div>
+                            
+                            {/* Decorative Crown for last reward */}
+                            {seq === 3 && (
+                              <div className="absolute right-4 top-12 text-3xl md:text-4xl opacity-20 blur-[1px] pointer-events-none rotate-12">
+                                 👑
+                              </div>
+                            )}
+                          </div>
+                          </motion.div>
+                        </div>
                       </div>
-                      </motion.div>
                     );
                   })}
                 </div>
@@ -724,16 +766,16 @@ export default function App() {
               {!window.configuration?.identifier ? (
                 <form onSubmit={handleSendOtp} className="space-y-6">
                   <div className="group">
-                    <label className="block text-[11px] font-black uppercase tracking-[0.15em] mb-2 text-black/40 group-focus-within:text-[#D4B030] transition-colors">Your Name</label>
-                    <input type="text" required value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Rahul Sharma"
-                      className="w-full bg-[#F5F5F5] px-5 py-4 rounded-[16px] border-[2px] border-transparent focus:border-[#F4D160] focus:bg-[#FFFDF6] outline-none font-bold text-[#1A1A1A] text-[15px] placeholder:text-black/20 transition-all duration-300 ease-out focus:-translate-y-1 focus:shadow-[0_10px_20px_rgba(244,209,96,0.15)]" />
+                    <label className="block text-[12px] font-black uppercase tracking-[0.15em] mb-2.5 text-black/70 group-focus-within:text-[#D4B030] transition-colors">Your Name</label>
+                    <input type="text" required value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Name"
+                      className="w-full bg-white px-5 py-4 rounded-[16px] border-[2px] border-black/10 focus:border-[#F4D160] focus:bg-[#FFFDF6] outline-none font-black text-[#111] text-[17px] placeholder:text-black/20 placeholder:font-bold transition-all duration-300 ease-out focus:-translate-y-1 focus:shadow-[0_10px_20px_rgba(244,209,96,0.15)] shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]" />
                   </div>
                   <div className="group">
-                    <label className="block text-[11px] font-black uppercase tracking-[0.15em] mb-2 text-black/40 group-focus-within:text-[#D4B030] transition-colors">Mobile Number</label>
+                    <label className="block text-[12px] font-black uppercase tracking-[0.15em] mb-2.5 text-black/70 group-focus-within:text-[#D4B030] transition-colors">Mobile Number</label>
                     <div className="relative">
-                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-black/40 font-black border-r border-black/10 pr-3 group-focus-within:text-[#D4B030] transition-colors">+91</span>
+                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-black/70 font-black text-[16px] border-r-[2px] border-black/10 pr-3.5 group-focus-within:text-[#D4B030] group-focus-within:border-[#F4D160]/40 transition-colors">+91</span>
                       <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))} maxLength={10} placeholder="99999 99999"
-                        className="w-full bg-[#F5F5F5] pl-16 pr-5 py-4 rounded-[16px] border-[2px] border-transparent focus:border-[#F4D160] focus:bg-[#FFFDF6] outline-none font-bold text-[#1A1A1A] text-[15px] placeholder:text-black/20 transition-all duration-300 ease-out tracking-wider focus:-translate-y-1 focus:shadow-[0_10px_20px_rgba(244,209,96,0.15)]" />
+                        className="w-full bg-white pl-[76px] pr-5 py-4 rounded-[16px] border-[2px] border-black/10 focus:border-[#F4D160] focus:bg-[#FFFDF6] outline-none font-black text-[#111] text-[18px] placeholder:text-black/20 placeholder:font-bold transition-all duration-300 ease-out tracking-[0.15em] focus:-translate-y-1 focus:shadow-[0_10px_20px_rgba(244,209,96,0.15)] shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]" />
                     </div>
                   </div>
                   
@@ -792,41 +834,43 @@ export default function App() {
         {step === 'landing' && (!journey || displayRewards.some(r => r.status === 'ACTIVE')) && (
           <motion.div 
             initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-            className="fixed bottom-4 left-0 w-full z-50 px-4 pointer-events-none"
+            className="fixed bottom-5 left-0 w-full z-50 px-5 pointer-events-none"
           >
-            <div className="max-w-md mx-auto flex flex-col items-center pointer-events-auto bg-[#111]/80 backdrop-blur-3xl border border-white/10 p-4 md:p-5 rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
-              {!journey ? (
-                <>
-                  <button 
+              <div className="max-w-[380px] mx-auto flex flex-col items-center pointer-events-auto">
+                {!journey ? (
+                  <motion.button 
                     onClick={() => setStep('otp')}
-                    className="w-full bg-gradient-to-r from-[#F4D160] to-[#F6D365] text-[#111] font-black text-[13px] tracking-[0.1em] uppercase py-3.5 rounded-[16px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_20px_rgba(244,209,96,0.3)]"
+                    whileHover={{ scale: 1.015 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    className="w-full bg-gradient-to-r from-[#F4D160] to-[#F6D365] text-[#111] py-4 rounded-full flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(244,209,96,0.35),0_0_20px_rgba(0,0,0,0.1)] border border-white/40 relative overflow-hidden"
                   >
-                    <Gift size={16} strokeWidth={2.5} />
-                    Unlock First Reward
-                  </button>
-                  <p className="text-white/50 text-[9px] md:text-[10px] font-bold tracking-[0.05em] mt-3 text-center uppercase">
-                    Complete your journey &middot; Enjoy more
-                  </p>
-                </>
-              ) : (
-                <>
-                   <div className="w-full bg-[#1A1A1A] border border-white/10 rounded-[16px] p-4 flex flex-col items-center shadow-inner">
-                     <p className="text-white/50 text-[9px] font-bold tracking-widest uppercase mb-1">Your Active Reward Code</p>
-                     <p className="text-2xl font-black text-[#F4D160] tracking-[0.2em]">
+                    {/* Ultra-Smooth Light Shimmer Sweep */}
+                    <motion.div 
+                      animate={{ x: ['-200%', '250%'] }} 
+                      transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+                      className="absolute top-0 left-0 w-[150%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-45deg] pointer-events-none"
+                    />
+                    <div className="flex items-center gap-2 font-black text-[13px] md:text-[14px] tracking-[0.15em] uppercase relative z-10">
+                      <Gift size={16} strokeWidth={2.5} />
+                      <span>Unlock My Rewards</span>
+                    </div>
+                    <span className="text-[#111]/60 text-[8px] font-bold tracking-[0.1em] uppercase mt-1 relative z-10">
+                      Enter mobile to start or continue
+                    </span>
+                  </motion.button>
+                ) : (
+                   <div className="w-full bg-[#111]/95 backdrop-blur-3xl border border-white/10 rounded-[32px] p-5 flex flex-col items-center shadow-[0_-10px_40px_rgba(0,0,0,0.25)] relative overflow-hidden">
+                     <p className="text-white/50 text-[9px] font-bold tracking-widest uppercase mb-1.5 relative z-10">Your Active Code</p>
+                     <p className="text-[32px] font-black text-[#F4D160] tracking-[0.2em] relative z-10">
                        {displayRewards.find(r => r.status === 'ACTIVE')?.couponCode}
                      </p>
-                     <p className="text-white/60 text-[9px] font-bold tracking-widest uppercase mt-3 text-center">
+                     <p className="text-white/40 text-[9px] font-bold tracking-widest uppercase mt-3 text-center relative z-10">
                        Show this code at the counter
                      </p>
                    </div>
-                </>
-              )}
-              
-              <div className="mt-3 flex items-center gap-1.5 text-white/30">
-                <MapPin size={12} />
-                <span className="text-[9px] font-bold uppercase tracking-widest">Pop O' Bob - Film Nagar</span>
+                )}
               </div>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
