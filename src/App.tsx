@@ -879,7 +879,6 @@ export default function App() {
                       drag={isUnlocked ? false : "x"} // Disable drag once unlocked
                       dragConstraints={containerRef}
                       dragElastic={0.02} // Firm, solid drag feel
-                      dragSnapToOrigin={!isUnlocked}
                       onDragEnd={(_, info) => {
                         // Calculate track width dynamically so it works flawlessly on any device size
                         const trackWidth = containerRef.current?.offsetWidth || 300;
@@ -902,9 +901,12 @@ export default function App() {
                               x.set(0);
                             }, 500);
                           }, 600); // Wait 600ms to admire the success state
+                        } else {
+                          // Manually snap back if they didn't drag far enough (prevents state-conflict stutter)
+                          animate(x, 0, { type: 'spring', stiffness: 400, damping: 25 });
                         }
                       }}
-                      style={{ x }}
+                      style={{ x, touchAction: 'none' }}
                     >
                       {/* Butter-Smooth Trailing Background Fill */}
                       <div className="absolute right-[26px] top-0 bottom-0 w-[500px] bg-gradient-to-r from-[#F4D160]/5 via-[#F4D160]/40 to-[#F4D160]/80 pointer-events-none rounded-l-full -z-10" />
