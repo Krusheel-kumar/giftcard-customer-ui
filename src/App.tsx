@@ -325,9 +325,11 @@ export default function App() {
 
   // Derive the current ticket to show in the Success Screen
   const targetTicketReward = displayRewards.find(r => r.status === 'ACTIVE') 
+    || displayRewards.find(r => r.status === 'PENDING_UNLOCK')
     || displayRewards.slice().reverse().find(r => r.status === 'REDEEMED' || r.status === 'EXPIRED') 
     || displayRewards[0];
   const isTicketUsed = targetTicketReward?.status === 'REDEEMED' || targetTicketReward?.status === 'EXPIRED';
+  const isTicketPending = targetTicketReward?.status === 'PENDING_UNLOCK';
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] font-sans text-white overflow-x-hidden relative selection:bg-gold selection:text-black">
