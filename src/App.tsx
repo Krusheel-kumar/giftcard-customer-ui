@@ -118,6 +118,7 @@ export default function App() {
 
   const [journey, setJourney] = useState<Reward[] | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [legalModal, setLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
@@ -836,7 +837,7 @@ export default function App() {
                       </div>
                     </div>
                     <span className="text-black/60 text-[12px] font-medium leading-relaxed select-none">
-                      I agree to the <a href="#" className="text-[#1A1A1A] font-bold underline decoration-2 decoration-black/20 hover:decoration-[#F4D160] transition-colors">Terms & Conditions</a> and <a href="#" className="text-[#1A1A1A] font-bold underline decoration-2 decoration-black/20 hover:decoration-[#F4D160] transition-colors">Privacy Policy</a>.
+                      I agree to the <button type="button" onClick={(e) => { e.preventDefault(); setLegalModal('terms'); }} className="text-[#1A1A1A] font-bold underline decoration-2 decoration-black/20 hover:decoration-[#F4D160] transition-colors">Terms & Conditions</button> and <button type="button" onClick={(e) => { e.preventDefault(); setLegalModal('privacy'); }} className="text-[#1A1A1A] font-bold underline decoration-2 decoration-black/20 hover:decoration-[#F4D160] transition-colors">Privacy Policy</button>.
                     </span>
                   </label>
 
@@ -960,6 +961,89 @@ export default function App() {
                 )}
               </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* LEGAL MODAL */}
+      <AnimatePresence>
+        {legalModal && (
+          <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center sm:p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+              onClick={() => setLegalModal(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, y: "100%" }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: "100%" }} 
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-full sm:w-[500px] max-h-[90dvh] overflow-y-auto overscroll-contain bg-white rounded-t-[32px] sm:rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] p-7 sm:p-9 pb-[calc(2rem+env(safe-area-inset-bottom))]"
+            >
+              <button onClick={() => setLegalModal(null)} className="absolute top-6 right-6 text-black/40 hover:text-black transition-colors bg-black/5 hover:bg-black/10 rounded-full p-2.5 z-10">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+
+              <div className="mt-2 text-[#111]">
+                {legalModal === 'privacy' ? (
+                  <>
+                    <h2 className="text-2xl font-black mb-1">Privacy Policy</h2>
+                    <p className="text-[11px] font-bold text-black/40 mb-6 uppercase tracking-widest">DPDP Act 2023 Compliant</p>
+                    
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">1. What Data We Collect</h3>
+                    <p className="text-xs text-black/70 mb-4 font-medium leading-relaxed">To participate in our exclusive digital reward campaign, we collect your Full Name and Mobile Number.</p>
+                    
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">2. Purpose of Collection</h3>
+                    <ul className="list-disc pl-4 text-xs text-black/70 mb-4 space-y-1.5 font-medium leading-relaxed">
+                      <li><strong>Verification:</strong> Sending an OTP to securely authenticate your identity.</li>
+                      <li><strong>Campaign Fulfillment:</strong> Delivering your digital reward passes.</li>
+                      <li><strong>Communication:</strong> Sending you reward codes and updates via WhatsApp and SMS.</li>
+                    </ul>
+
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">3. Consent & Processing</h3>
+                    <p className="text-xs text-black/70 mb-4 font-medium leading-relaxed">By participating, you provide free, specific, informed, and unambiguous consent for us to process your data for the purposes stated above.</p>
+
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">4. Third-Party Processors</h3>
+                    <p className="text-xs text-black/70 mb-4 font-medium leading-relaxed">Your data is securely processed by trusted third parties bound by strict confidentiality: MSG91 (for OTPs/WhatsApp) and NeonDB/Railway (for secure cloud storage). We do not sell or trade your personal data.</p>
+
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">5. Your Rights (Data Principal)</h3>
+                    <ul className="list-disc pl-4 text-xs text-black/70 mb-4 space-y-1.5 font-medium leading-relaxed">
+                      <li><strong>Access:</strong> Request a summary of the data we hold.</li>
+                      <li><strong>Erasure:</strong> Request us to delete your data from our systems.</li>
+                      <li><strong>Withdraw Consent:</strong> Withdraw consent at any time (active passes will be forfeited).</li>
+                    </ul>
+
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">6. Grievance Redressal</h3>
+                    <p className="text-xs text-black/70 mb-4 font-medium leading-relaxed">If you have any questions or wish to exercise your rights (e.g., data deletion), please contact our Store Manager at:<br/><br/><strong className="text-black bg-black/5 px-3 py-2 rounded-lg inline-block">407, popobob, road no81, film nagar</strong></p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-2xl font-black mb-1">Terms & Conditions</h2>
+                    <p className="text-[11px] font-bold text-black/40 mb-6 uppercase tracking-widest">Campaign Rules</p>
+                    
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">1. Eligibility</h3>
+                    <p className="text-xs text-black/70 mb-4 font-medium leading-relaxed">This campaign is open to all customers. By participating, you agree to these terms.</p>
+                    
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">2. Campaign Mechanics</h3>
+                    <p className="text-xs text-black/70 mb-4 font-medium leading-relaxed">Upon successful registration, you unlock a digital reward journey of up to 3 sequential rewards. <strong>24-Hour Cooldown:</strong> You may only claim one reward per visit. After a reward is redeemed, your next reward unlocks exactly 24 hours later.</p>
+
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">3. Redemption Rules</h3>
+                    <ul className="list-disc pl-4 text-xs text-black/70 mb-4 space-y-1.5 font-medium leading-relaxed">
+                      <li>Rewards are exclusively valid for redemption at the <strong>Pop O' Bob - Film Nagar</strong> outlet.</li>
+                      <li>Digital passes must be presented to the barista before billing.</li>
+                      <li>Only one unique reward code can be redeemed per customer, per day.</li>
+                      <li>Cannot be combined with other ongoing in-store offers or discounts.</li>
+                    </ul>
+
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">4. Expiration & Transferability</h3>
+                    <p className="text-xs text-black/70 mb-4 font-medium leading-relaxed">Unlocked rewards must be redeemed within the validity period stated on the pass. Expired rewards cannot be reissued. Rewards are strictly non-transferable and cannot be exchanged for cash.</p>
+
+                    <h3 className="font-bold text-sm mt-4 mb-1 text-[#D4B030]">5. Modification</h3>
+                    <p className="text-xs text-black/70 mb-4 font-medium leading-relaxed">Pop O' Bob reserves the right to modify, suspend, or terminate this campaign at any time without prior notice. In case of disputes, the decision of the store management will be final.</p>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
