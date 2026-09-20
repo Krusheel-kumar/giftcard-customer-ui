@@ -682,18 +682,28 @@ export default function App() {
                  <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4B030] opacity-10 blur-[80px] rounded-full"></div>
               </div>
 
-              <div className="text-center mb-5 relative z-10 mt-6 md:mt-12">
-                <div className="w-14 h-14 bg-[#F4D160] rounded-full flex items-center justify-center mx-auto mb-3 shadow-[0_6px_20px_rgba(244,209,96,0.4)]">
-                  <svg className="w-7 h-7 text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+              <div className="w-full max-w-md mx-auto text-center mb-8 relative z-10">
+                <div className="w-16 h-16 bg-gradient-to-tr from-[#D4B030] to-[#F4D160] rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_10px_30px_rgba(244,209,96,0.3)]">
+                  {isTicketPending ? (
+                    <Lock className="text-white" size={28} />
+                  ) : (
+                    <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
                 </div>
                 <h1 className="text-2xl md:text-3xl font-black text-[#1A1A1A] mb-1 tracking-tight">You're In, {customerName.split(' ')[0]}!</h1>
-                <p className="text-[#1A1A1A]/60 font-semibold text-xs md:text-sm">{isTicketUsed ? 'This reward has already been used.' : 'Your reward is locked and ready.'}</p>
+                <p className="text-[#1A1A1A]/60 font-semibold text-xs md:text-sm">
+                  {isTicketPending ? 'Your next reward is processing.' : isTicketUsed ? 'This reward has already been used.' : 'Your reward is locked and ready.'}
+                </p>
               </div>
 
               {/* Digital Pass Card */}
-              <div className={`relative w-full max-w-[340px] bg-gradient-to-br ${isTicketUsed ? 'from-[#333] to-[#111] shadow-[0_20px_50px_rgba(0,0,0,0.5)] grayscale opacity-95' : 'from-[#B91C1C] to-[#7F1D1D] shadow-[0_20px_50px_rgba(185,28,28,0.3)]'} rounded-[28px] overflow-hidden border border-white/20 z-10 shrink-0`}>
+              <div className={`relative w-full max-w-[340px] bg-gradient-to-br ${
+                isTicketPending ? 'from-[#F4D160] to-[#D4B030] shadow-[0_20px_50px_rgba(244,209,96,0.3)]' :
+                isTicketUsed ? 'from-[#333] to-[#111] shadow-[0_20px_50px_rgba(0,0,0,0.5)] grayscale opacity-95' : 
+                'from-[#B91C1C] to-[#7F1D1D] shadow-[0_20px_50px_rgba(185,28,28,0.3)]'
+                } rounded-[28px] overflow-hidden border border-white/20 z-10 shrink-0`}>
                 {/* Text Watermark */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none flex flex-col justify-around -rotate-12 opacity-10 z-0 scale-110">
                   {Array.from({ length: 8 }).map((_, i) => (
@@ -709,35 +719,50 @@ export default function App() {
 
                 {/* Pass Body */}
                 <div className="px-7 py-8 text-center relative z-10 flex flex-col min-h-[460px] justify-end">
-                  <div className={`absolute top-6 left-1/2 -translate-x-1/2 inline-block ${isTicketUsed ? 'bg-black/50 text-white/50 border border-white/10' : 'bg-white text-[#B91C1C]'} text-[10px] font-black tracking-widest uppercase px-4 py-1.5 rounded-full shadow-lg`}>
-                    {isTicketUsed ? 'REDEEMED' : 'AVAILABLE NOW'}
+                  <div className={`absolute top-6 left-1/2 -translate-x-1/2 inline-block ${
+                    isTicketPending ? 'bg-white text-[#D4B030]' :
+                    isTicketUsed ? 'bg-black/50 text-white/50 border border-white/10' : 
+                    'bg-white text-[#B91C1C]'
+                    } text-[10px] font-black tracking-widest uppercase px-4 py-1.5 rounded-full shadow-lg`}>
+                    {isTicketPending ? 'UNLOCKS SOON' : isTicketUsed ? 'REDEEMED' : 'AVAILABLE NOW'}
                   </div>
 
                   <div className="mt-6 flex flex-col flex-1 justify-end">
                     <h3 className="text-white/80 text-[10px] font-bold tracking-[0.2em] uppercase mb-1 drop-shadow-sm">Reward #{targetTicketReward?.sequence || 1}</h3>
                     <h2 className="text-[36px] leading-[1.1] font-black text-white mb-6 tracking-tight drop-shadow-sm">{targetTicketReward?.name || 'Offer'}</h2>
                     
-                    <div className={`bg-white border ${isTicketUsed ? 'border-black/40 opacity-70' : 'border-white/40'} rounded-[20px] p-5 mb-5 shadow-xl relative overflow-hidden`}>
-                      <p className={`${isTicketUsed ? 'text-[#111]/60' : 'text-[#B91C1C]/60'} text-[9px] font-black tracking-widest uppercase mb-1.5`}>Your Unique Code</p>
-                      <p className={`text-[28px] font-black ${isTicketUsed ? 'text-[#111]/50 line-through' : 'text-[#7F1D1D]'} tracking-[0.1em] drop-shadow-sm`}>{targetTicketReward?.couponCode || 'POP-TEST-1234'}</p>
+                    <div className={`bg-white border ${isTicketUsed ? 'border-black/40 opacity-70' : 'border-white/40'} rounded-[20px] p-5 mb-5 shadow-xl relative overflow-hidden flex flex-col items-center justify-center min-h-[100px]`}>
+                      {isTicketPending && targetTicketReward?.activatedAt ? (
+                        <>
+                          <p className="text-[#D4B030]/80 text-[9px] font-black tracking-widest uppercase mb-2">Unlocking In</p>
+                          <div className="scale-125 origin-center"><CountdownTimer targetDate={targetTicketReward.activatedAt} /></div>
+                        </>
+                      ) : (
+                        <>
+                          <p className={`${isTicketUsed ? 'text-[#111]/60' : 'text-[#B91C1C]/60'} text-[9px] font-black tracking-widest uppercase mb-1.5`}>Your Unique Code</p>
+                          <p className={`text-[28px] font-black ${isTicketUsed ? 'text-[#111]/50 line-through' : 'text-[#7F1D1D]'} tracking-[0.1em] drop-shadow-sm`}>{targetTicketReward?.couponCode || 'POP-TEST-1234'}</p>
+                        </>
+                      )}
                     </div>
 
                     <p className="text-white/80 text-[11px] font-medium mb-1.5">Valid at Film Nagar Outlet Only</p>
                     <p className="text-white text-[11px] font-bold mb-6 drop-shadow-sm bg-black/15 inline-block px-4 py-1.5 rounded-full">
-                      {isTicketUsed ? 'Reward Used' : 'Expires in 10 Days'}
+                      {isTicketPending ? 'Patience is a virtue' : isTicketUsed ? 'Reward Used' : 'Expires in 10 Days'}
                     </p>
 
                     <div className="pt-5 pb-2 border-t border-white/20">
                       <p className="text-white/90 text-[11px] font-medium leading-relaxed px-4 mb-4">
-                        {isTicketUsed ? 'This reward has already been claimed. Check your journey for the next one.' : 'Show this screen to the barista at checkout to claim your offer.'}
+                        {isTicketPending ? 'This reward will automatically unlock exactly 24 hours after your last visit.' :
+                         isTicketUsed ? 'This reward has already been claimed. Check your journey for the next one.' : 
+                         'Show this screen to the barista at checkout to claim your offer.'}
                       </p>
                       
                       {/* Ticket Actions */}
                       <div className="flex items-center justify-center gap-3 px-5">
-                        <a href="tel:+919999999999" className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[14px] bg-white/10 hover:bg-white/20 text-white font-bold text-[10px] tracking-widest uppercase transition-colors border border-white/10">
+                        <a href="tel:+919999999999" className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[14px] bg-white/10 hover:bg-white/20 text-white font-bold text-[10px] tracking-widest uppercase transition-colors border border-white/10 ${isTicketPending ? 'opacity-70 pointer-events-none' : ''}`}>
                           <Phone size={12} /> Call
                         </a>
-                        <a href="https://maps.google.com/?q=Pop+O+Bob+Film+Nagar" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[14px] bg-white text-[#991B1B] hover:bg-gray-100 font-black text-[10px] tracking-widest uppercase transition-colors shadow-[0_4px_10px_rgba(0,0,0,0.2)]">
+                        <a href="https://maps.google.com/?q=Pop+O+Bob+Film+Nagar" target="_blank" rel="noopener noreferrer" className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[14px] bg-white ${isTicketPending ? 'text-[#D4B030]' : 'text-[#991B1B]'} hover:bg-gray-100 font-black text-[10px] tracking-widest uppercase transition-colors shadow-[0_4px_10px_rgba(0,0,0,0.2)]`}>
                           <MapPin size={12} /> Directions
                         </a>
                       </div>
