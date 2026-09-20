@@ -142,7 +142,7 @@ export default function App() {
         const mappedRewards = data.map((cr: any, index: number) => ({
           id: cr.id,
           sequence: index + 1,
-          name: cr.rewardDefinitionId === 1 ? 'WELCOME REWARD' : cr.rewardDefinitionId === 2 ? '20% OFF' : cr.rewardDefinitionId === 3 ? 'BOBA + FREE FOOD' : 'MILESTONE REWARD',
+          name: cr.sequence === 1 ? 'WELCOME REWARD' : cr.sequence === 2 ? '20% OFF' : 'MILESTONE REWARD',
           status: cr.status,
           couponCode: cr.couponCode,
           activatedAt: cr.activatedAt,
@@ -224,7 +224,7 @@ export default function App() {
             const mappedRewards = journeyList.map((cr: any, index: number) => ({
               id: cr.id,
               sequence: index + 1,
-              name: cr.rewardDefinitionId === 1 ? 'WELCOME REWARD' : cr.rewardDefinitionId === 2 ? '20% OFF' : cr.rewardDefinitionId === 3 ? 'BOBA + FREE FOOD' : 'MILESTONE REWARD',
+              name: cr.sequence === 1 ? 'WELCOME REWARD' : cr.sequence === 2 ? '20% OFF' : 'MILESTONE REWARD',
               status: cr.status,
               couponCode: cr.couponCode,
               activatedAt: cr.activatedAt,
@@ -316,8 +316,7 @@ export default function App() {
   const displayRewards = journey || [
     { id: 1, sequence: 1, name: 'Buy 1 & Get 1', status: 'ACTIVE' },
     { id: 2, sequence: 2, name: '20% OFF', status: 'LOCKED' },
-    { id: 3, sequence: 3, name: 'Boba + Free Food', status: 'LOCKED' },
-    { id: 4, sequence: 4, name: 'Free Boba', status: 'LOCKED' },
+    { id: 3, sequence: 3, name: 'Free Boba', status: 'LOCKED' },
   ];
 
   return (
@@ -409,6 +408,7 @@ export default function App() {
               <div id="rewards-section"></div>
               
               {/* REWARDS SECTION (2x2 Grid) */}
+              {/* REWARDS SECTION (Grid for 3 items) */}
               <motion.div 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
                 className="w-full relative mt-12 pb-24 px-4"
@@ -419,14 +419,14 @@ export default function App() {
                     YOUR POP O’ BOB JOURNEY
                   </h3>
                   <h2 className="text-[26px] md:text-4xl font-black text-[#1A1A1A] mb-2 tracking-tight">
-                    4 EXCLUSIVE REWARDS
+                    3 EXCLUSIVE REWARDS
                   </h2>
                   <p className="text-xs md:text-sm text-[#1A1A1A]/60 font-medium">
                     Visit. Collect. Enjoy more at Film Nagar.
                   </p>
                 </div>
 
-                {/* 2x2 Grid */}
+                {/* Grid for 3 items (first two side by side, third full width) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 max-w-4xl mx-auto relative z-10">
                   {displayRewards.map((reward, i) => {
                     const isActive = reward.status === 'ACTIVE' || (!journey && i === 0);
@@ -434,10 +434,17 @@ export default function App() {
                     const isLocked = reward.status === 'LOCKED' || (!journey && i > 0);
 
                     let cardDesc = "";
-                    if (i === 0) cardDesc = "Your first Pop O’ Bob treat.";
-                    if (i === 1) cardDesc = "Come back for your next reward.";
-                    if (i === 2) cardDesc = "Pair your favourite boba with a selected food item.";
-                    if (i === 3) cardDesc = "Complete your journey and unlock a FREE BOBA.";
+                    const seq = reward.sequence || (i + 1);
+                    if (seq === 1) {
+                      cardDesc = "Buy 1 Boba, get 1 completely FREE";
+                    } else if (seq === 2) {
+                      cardDesc = "Enjoy a flat 20% off your entire order";
+                    } else if (seq === 3) {
+                      cardDesc = "You made it! Claim your free Boba tea!";
+                    }
+
+                    // Make the 3rd reward span 2 columns on desktop
+                    const spanClass = seq === 3 ? "md:col-span-2" : "";
 
                     // Boba Images
                     const bobaImgs = [
@@ -450,7 +457,13 @@ export default function App() {
                     const overlayColor = isActive ? '#FFFDF6' : isPending ? '#F0F8FF' : '#FFFFFF';
 
                     return (
-                      <div key={i} className={`relative flex flex-col justify-between overflow-hidden rounded-[24px] md:rounded-3xl p-5 md:p-6 transition-all shadow-lg min-h-[260px] md:min-h-[280px]
+                      <motion.div 
+                        key={i}
+                        whileHover={!isLocked && !isPending ? { y: -5, scale: 1.02 } : {}}
+                        transition={{ type: "spring", stiffness: 300 }}
+                        className={`relative rounded-[24px] p-1 overflow-hidden group ${isLocked || isPending ? 'opacity-80' : ''} ${spanClass}`}
+                      >
+                        <div className={`relative flex flex-col justify-between overflow-hidden rounded-[24px] md:rounded-3xl p-5 md:p-6 transition-all shadow-lg min-h-[260px] md:min-h-[280px]
                         ${isActive 
                           ? 'bg-[#FFFDF6] border border-[#F6D365]/20' 
                           : isPending 
@@ -510,12 +523,13 @@ export default function App() {
                         </div>
                         
                         {/* Decorative Crown for last reward */}
-                        {i === 3 && (
+                        {seq === 3 && (
                           <div className="absolute right-4 top-12 text-3xl md:text-4xl opacity-20 blur-[1px] pointer-events-none rotate-12">
                              👑
                           </div>
                         )}
                       </div>
+                      </motion.div>
                     );
                   })}
                 </div>
