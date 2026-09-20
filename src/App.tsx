@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Gift, Lock, MapPin, Phone, ChevronsRight, Check } from 'lucide-react';
 import './index.css';
 
@@ -853,7 +853,7 @@ export default function App() {
         {step === 'landing' && (!journey || displayRewards.some(r => r.status === 'ACTIVE')) && (
           <motion.div 
             initial={{ y: 120 }} animate={{ y: 0 }} exit={{ y: 120 }} transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-            className="fixed bottom-6 left-0 w-full z-50 px-5 pointer-events-none"
+            className="fixed bottom-6 md:bottom-8 pb-[env(safe-area-inset-bottom)] left-0 w-full z-50 px-5 pointer-events-none"
           >
               <div className="max-w-[340px] mx-auto pointer-events-auto">
                 {!journey ? (
@@ -881,9 +881,18 @@ export default function App() {
                       dragElastic={0.02} // Firm, solid drag feel
                       dragSnapToOrigin={!isUnlocked}
                       onDragEnd={(_, info) => {
-                        // If they slide more than 160px (safe on tiny phones too), unlock!
-                        if (info.offset.x > 160) {
-                          setIsUnlocked(true); // Triggers success checkmark
+                        // Calculate track width dynamically so it works flawlessly on any device size
+                        const trackWidth = containerRef.current?.offsetWidth || 300;
+                        const thumbWidth = 52;
+                        const maxTravel = trackWidth - thumbWidth;
+                        const threshold = maxTravel * 0.55; // Must drag past 55% to trigger unlock
+
+                        if (info.offset.x > threshold) {
+                          setIsUnlocked(true);
+                          
+                          // Zip to the end of the track!
+                          animate(x, maxTravel, { type: 'spring', stiffness: 400, damping: 25 });
+                          
                           // Wait for visual satisfaction before navigating
                           setTimeout(() => {
                             setStep('otp');
@@ -892,7 +901,7 @@ export default function App() {
                               setIsUnlocked(false);
                               x.set(0);
                             }, 500);
-                          }, 500);
+                          }, 600); // Wait 600ms to admire the success state
                         }
                       }}
                       style={{ x }}
