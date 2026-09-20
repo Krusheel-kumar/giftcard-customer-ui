@@ -142,7 +142,7 @@ export default function App() {
         const mappedRewards = data.map((cr: any, index: number) => ({
           id: cr.id,
           sequence: index + 1,
-          name: cr.sequence === 1 ? 'WELCOME REWARD' : cr.sequence === 2 ? '20% OFF' : 'MILESTONE REWARD',
+          name: (index + 1) === 1 ? 'Buy 1 Get 1' : (index + 1) === 2 ? '20% OFF' : 'Free Boba Tea',
           status: cr.status,
           couponCode: cr.couponCode,
           activatedAt: cr.activatedAt,
@@ -224,7 +224,7 @@ export default function App() {
             const mappedRewards = journeyList.map((cr: any, index: number) => ({
               id: cr.id,
               sequence: index + 1,
-              name: cr.sequence === 1 ? 'WELCOME REWARD' : cr.sequence === 2 ? '20% OFF' : 'MILESTONE REWARD',
+              name: (index + 1) === 1 ? 'Buy 1 Get 1' : (index + 1) === 2 ? '20% OFF' : 'Free Boba Tea',
               status: cr.status,
               couponCode: cr.couponCode,
               activatedAt: cr.activatedAt,
