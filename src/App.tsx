@@ -122,7 +122,7 @@ export default function App() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
-  const textOpacity = useTransform(x, [0, 80], [1, 0]);
+  const textOpacity = useTransform(x, [0, 140], [1, 0]);
 
   useEffect(() => {
     // 1. Check URL for token (Magic Link from WhatsApp)
@@ -885,7 +885,7 @@ export default function App() {
           >
               <div className="max-w-[340px] mx-auto pointer-events-auto">
                 {!journey ? (
-                  <div className="h-[64px] bg-[#1A1A1A]/95 backdrop-blur-3xl rounded-full p-1.5 relative flex items-center shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden">
+                  <div className="h-[66px] bg-[#111]/90 backdrop-blur-2xl rounded-full p-1.5 relative flex items-center shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),_0_20px_40px_rgba(0,0,0,0.5)] border border-white/5 overflow-hidden">
                     
                     {/* Drag Bounds */}
                     <div className="absolute inset-1.5 pointer-events-none" ref={containerRef} />
@@ -895,30 +895,39 @@ export default function App() {
                       className="absolute inset-0 flex items-center justify-center pl-10 pointer-events-none"
                       style={{ opacity: textOpacity }}
                     >
-                      {/* CSS gradient shimmer effect */}
-                      <span className="font-black text-[11px] md:text-[12px] tracking-[0.15em] uppercase bg-gradient-to-r from-white/30 via-white/80 to-white/30 bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite] bg-clip-text text-transparent">
+                      {/* Premium iOS-style text fade/shimmer */}
+                      <span className="font-bold text-[11px] md:text-[12px] tracking-[0.2em] uppercase bg-gradient-to-r from-white/20 via-white/90 to-white/20 bg-[length:200%_auto] animate-[shimmer_2.5s_linear_infinite] bg-clip-text text-transparent drop-shadow-sm">
                         Slide to Unlock Reward
                       </span>
                     </motion.div>
                     
                     {/* Draggable Thumb */}
                     <motion.div
-                      className={`w-[52px] h-[52px] ${isUnlocked ? 'bg-[#F4D160]' : 'bg-gradient-to-tr from-[#F4D160] to-[#F6D365]'} rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing shadow-[0_4px_15px_rgba(244,209,96,0.4)] z-10 relative pointer-events-auto hover:scale-105 active:scale-95 transition-all duration-300`}
+                      className={`w-[54px] h-[54px] ${isUnlocked ? 'bg-[#F4D160]' : 'bg-gradient-to-br from-[#F6D365] to-[#F4D160]'} rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing z-10 relative pointer-events-auto transition-colors duration-300 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),_0_2px_10px_rgba(244,209,96,0.5)]`}
                       drag={isUnlocked ? false : "x"} // Disable drag once unlocked
                       dragConstraints={containerRef}
-                      dragElastic={0.02} // Firm, solid drag feel
+                      dragElastic={0.01} // Extremely rigid track for that premium mechanical feel
+                      onDrag={(_, info) => {
+                        // Subtle haptic tick for zipping feel (Android only, Safari ignores this gracefully)
+                        if (info.velocity.x > 0 && Math.abs(info.offset.x) % 15 < 2 && navigator.vibrate) {
+                          navigator.vibrate(2); 
+                        }
+                      }}
                       onDragEnd={(_, info) => {
                         // Calculate track width dynamically so it works flawlessly on any device size
                         const trackWidth = containerRef.current?.offsetWidth || 300;
-                        const thumbWidth = 52;
+                        const thumbWidth = 54;
                         const maxTravel = trackWidth - thumbWidth;
-                        const threshold = maxTravel * 0.55; // Must drag past 55% to trigger unlock
+                        const threshold = maxTravel * 0.65; // Push threshold to 65% for weighty feel
 
                         if (info.offset.x > threshold) {
                           setIsUnlocked(true);
                           
-                          // Zip to the end of the track!
-                          animate(x, maxTravel, { type: 'spring', stiffness: 400, damping: 25 });
+                          // Heavy magnetic snap to the end!
+                          animate(x, maxTravel, { type: 'spring', stiffness: 500, damping: 28, mass: 0.8 });
+                          
+                          // Satisfying success thud (haptic)
+                          if (navigator.vibrate) navigator.vibrate([30, 40, 30]); 
                           
                           // Wait for visual satisfaction before navigating
                           setTimeout(() => {
@@ -928,21 +937,25 @@ export default function App() {
                               setIsUnlocked(false);
                               x.set(0);
                             }, 500);
-                          }, 600); // Wait 600ms to admire the success state
+                          }, 550); // Shorter wait (550ms) keeps momentum high
                         } else {
-                          // Manually snap back if they didn't drag far enough (prevents state-conflict stutter)
-                          animate(x, 0, { type: 'spring', stiffness: 400, damping: 25 });
+                          // Tightly snap back to start (prevents state-conflict stutter)
+                          animate(x, 0, { type: 'spring', stiffness: 500, damping: 30, mass: 0.8 });
+                          // Failure bump (haptic)
+                          if (navigator.vibrate && info.offset.x > 20) navigator.vibrate(10);
                         }
                       }}
                       style={{ x, touchAction: 'none' }}
                     >
-                      {/* Butter-Smooth Trailing Background Fill */}
-                      <div className="absolute right-[26px] top-0 bottom-0 w-[500px] bg-gradient-to-r from-[#F4D160]/5 via-[#F4D160]/40 to-[#F4D160]/80 pointer-events-none rounded-l-full -z-10" />
-
+                      {/* Glowing Trailing Background Fill */}
+                      <div className="absolute right-[27px] top-[0px] bottom-[0px] w-[350px] bg-gradient-to-r from-transparent via-[#F4D160]/40 to-[#F4D160]/90 pointer-events-none rounded-l-full -z-10 shadow-[0_0_15px_rgba(244,209,96,0.3)]" />
+                      
                       {isUnlocked ? (
-                         <Check size={26} className="text-[#111]" strokeWidth={3} />
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
+                          <Check size={22} className="text-[#111]" strokeWidth={4} />
+                        </motion.div>
                       ) : (
-                         <ChevronsRight size={24} className="text-[#111] ml-0.5 animate-pulse" />
+                        <ChevronsRight size={22} className="text-[#8B731B] ml-0.5 animate-pulse" strokeWidth={3} />
                       )}
                     </motion.div>
                   </div>
