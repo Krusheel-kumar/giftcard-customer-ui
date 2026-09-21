@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
-import { Gift, Lock, MapPin, Phone, ChevronsRight, Check } from 'lucide-react';
+import { Gift, Lock, MapPin, Phone, ChevronsRight, Check, Star, Instagram } from 'lucide-react';
 import './index.css';
 
 import wordmark from './assets/Horizontal Wordmark with Emblem.png';
@@ -543,20 +543,30 @@ export default function App() {
                 {/* Connected Journey Timeline */}
                 <div className="flex flex-col max-w-[480px] mx-auto relative z-10 px-4 md:px-0">
                   {hasGraduated ? (
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[#111] text-white rounded-3xl p-8 shadow-2xl border border-[#F4D160]/30 relative overflow-hidden mt-4">
-                       <div className="absolute top-[-20%] right-[-10%] w-40 h-40 bg-[#F4D160] opacity-20 blur-[60px] rounded-full pointer-events-none"></div>
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="bg-gradient-to-b from-[#141414] to-[#0A0A0A] text-white rounded-[32px] p-8 md:p-10 shadow-[0_30px_60px_rgba(0,0,0,0.4)] border border-white/5 relative overflow-hidden mt-6 mb-12">
+                       <div className="absolute top-[-40%] right-[-30%] w-80 h-80 bg-[#D4B030] opacity-[0.06] blur-[90px] rounded-full pointer-events-none"></div>
+                       
                        <div className="relative z-10 flex flex-col items-center text-center">
-                         <span className="text-5xl mb-4 animate-bounce">👑</span>
-                         <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D4B030] to-[#F6D365] mb-2 tracking-tight">Popobob VIP</h2>
-                         <p className="text-white/70 text-sm leading-relaxed mb-6">
-                           You've completed the full reward journey! Thank you for being a loyal customer. Drop a review and follow us to unlock early access to our upcoming secret points system!
+                         <div className="mb-8">
+                           <span className="text-[#D4B030] text-[10px] md:text-xs tracking-[0.4em] uppercase font-bold opacity-90">Popobob VIP</span>
+                         </div>
+                         
+                         <h2 className="text-2xl md:text-3xl font-light text-white/95 mb-5 tracking-wide leading-tight">
+                           A journey completed.<br/>A relationship begun.
+                         </h2>
+                         
+                         <p className="text-white/40 text-[13px] md:text-sm leading-relaxed mb-10 max-w-[95%] font-light">
+                           You have completed your reward journey, but our story is just starting. Thank you for your immense loyalty. Join our inner circle below for exclusive future drops and loyalty points.
                          </p>
-                         <a href="https://g.page/r/your-google-link" target="_blank" rel="noreferrer" className="w-full bg-white text-black font-black text-xs tracking-widest uppercase py-4 rounded-xl mb-3 shadow-[0_0_15px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
-                           ⭐ Review on Google
-                         </a>
-                         <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="w-full bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-black text-xs tracking-widest uppercase py-4 rounded-xl shadow-[0_0_15px_rgba(253,29,29,0.2)] flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
-                           📸 Follow on Instagram
-                         </a>
+                         
+                         <div className="flex flex-col w-full gap-3">
+                           <a href="https://g.page/r/your-google-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/70 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 group">
+                             <Star size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Review our store
+                           </a>
+                           <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/70 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 group">
+                             <Instagram size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Follow the journey
+                           </a>
+                         </div>
                        </div>
                     </motion.div>
                   ) : (
@@ -713,40 +723,35 @@ export default function App() {
           )}
 
           {step === 'success' && hasGraduated && (
-            <motion.div key="vip_success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-4 pt-12 pb-8 bg-[#111] text-white relative z-[200]">
-              <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                 <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#D4B030] opacity-20 blur-[120px] rounded-full"></div>
-                 <div className="absolute bottom-[-10%] right-[-20%] w-[50%] h-[50%] bg-[#F4D160] opacity-10 blur-[100px] rounded-full"></div>
+            <motion.div key="vip_success" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 bg-[#050505] text-white relative z-[200]">
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4B030] opacity-[0.04] blur-[120px] rounded-full"></div>
               </div>
 
-              <div className="w-full max-w-md mx-auto text-center mb-6 relative z-10">
-                <div className="w-20 h-20 bg-gradient-to-tr from-[#D4B030] to-[#F4D160] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_50px_rgba(244,209,96,0.4)] relative">
-                  <span className="text-4xl absolute animate-pulse">👑</span>
+              <div className="w-full max-w-md mx-auto text-center mb-12 relative z-10 flex flex-col items-center">
+                <div className="mb-10">
+                  <span className="text-[#D4B030] text-[10px] md:text-xs tracking-[0.5em] uppercase font-bold opacity-90">Popobob VIP</span>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D4B030] to-[#F6D365] mb-3 tracking-tight">Popobob Royalty</h1>
-                <p className="text-white/70 font-medium text-sm md:text-base px-4 leading-relaxed">
-                  Congratulations, {customerName.split(' ')[0]}! You have completed your reward journey. Thank you for being such an incredible and loyal customer.
+                
+                <h1 className="text-3xl md:text-4xl font-light text-white/95 mb-6 tracking-wide leading-tight">
+                  A journey completed.<br/>A relationship begun.
+                </h1>
+                
+                <p className="text-white/40 font-light text-[13px] md:text-sm px-4 leading-relaxed">
+                  Thank you, {customerName.split(' ')[0]}. Customers like you are the heartbeat of Popobob. We are deeply grateful for your loyalty and look forward to serving you again.
                 </p>
               </div>
 
-              <div className="w-full max-w-sm mx-auto relative z-10 flex flex-col gap-4 px-4">
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center backdrop-blur-md mb-2">
-                  <h3 className="text-[#F6D365] font-black uppercase tracking-widest text-xs mb-2">The Journey Continues</h3>
-                  <p className="text-white/60 text-xs leading-relaxed mb-4">
-                    We are launching a secret VIP Loyalty Points system soon. Get a head-start and earn bonus points by dropping a review and following us today!
-                  </p>
-                  
-                  <div className="flex flex-col gap-3 mt-4">
-                    <a href="https://g.page/r/your-google-link" target="_blank" rel="noreferrer" className="w-full bg-white text-black font-black text-xs tracking-widest uppercase py-4 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
-                      ⭐ Review on Google
-                    </a>
-                    <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="w-full bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-black text-xs tracking-widest uppercase py-4 rounded-xl shadow-[0_0_20px_rgba(253,29,29,0.3)] hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
-                      📸 Follow on Instagram
-                    </a>
-                  </div>
-                </div>
+              <div className="w-full max-w-sm mx-auto relative z-10 flex flex-col gap-3 px-2">
+                <p className="text-white/30 text-center text-[9px] md:text-[10px] uppercase tracking-[0.3em] mb-3 font-medium">Join the Inner Circle</p>
+                <a href="https://g.page/r/your-google-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/80 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 group">
+                  <Star size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Review our store
+                </a>
+                <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/80 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 mb-6 group">
+                  <Instagram size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Follow the journey
+                </a>
                 
-                <button onClick={() => setStep('landing')} className="text-white/40 font-semibold text-xs hover:text-white/80 transition-colors py-2 uppercase tracking-widest">
+                <button onClick={() => setStep('landing')} className="text-white/30 font-medium text-[9px] md:text-[10px] hover:text-white/80 transition-colors py-3 uppercase tracking-[0.25em]">
                   Return Home
                 </button>
               </div>
