@@ -32,8 +32,9 @@ interface Reward {
   activatedAt?: string;
 }
 
-const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
+const CountdownTimer = ({ targetDate, onComplete }: { targetDate: string, onComplete?: () => void }) => {
   const [timeLeft, setTimeLeft] = useState<{ hours: number, minutes: number, seconds: number } | null>(null);
+  const [hasCompleted, setHasCompleted] = useState(false);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -46,17 +47,21 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
         });
       } else {
         setTimeLeft(null);
+        if (!hasCompleted) {
+          setHasCompleted(true);
+          onComplete?.();
+        }
       }
     };
     
     calculateTimeLeft();
     const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
-  }, [targetDate]);
+  }, [targetDate, hasCompleted, onComplete]);
 
   if (!timeLeft) return (
     <div className="w-full flex justify-center py-4">
-      <span className="font-mono tracking-wider font-bold animate-pulse text-[#1A1A1A]">Unlocking now...</span>
+      <span className="font-mono tracking-wider font-bold animate-pulse text-[#1A1A1A]">Processing Unlock...</span>
     </div>
   );
   
@@ -656,7 +661,7 @@ export default function App() {
                                {isPending && reward.activatedAt && (
                                  <div className="w-full flex flex-col items-center justify-center mt-6 pt-4 border-t border-black/5">
                                    <span className="text-[10px] uppercase font-black tracking-widest text-[#1A1A1A]/50 bg-white/40 px-3 py-1 rounded-full mb-1 backdrop-blur-sm shadow-sm">Reward Unlocks In</span>
-                                   <CountdownTimer targetDate={reward.activatedAt} />
+                                   <CountdownTimer targetDate={reward.activatedAt} onComplete={() => window.location.reload()} />
                                  </div>
                                )}
                             </div>
@@ -738,7 +743,7 @@ export default function App() {
                       {isTicketPending && targetTicketReward?.activatedAt ? (
                         <>
                           <p className="text-[#D4B030]/80 text-[9px] font-black tracking-widest uppercase mb-2">Unlocking In</p>
-                          <div className="scale-125 origin-center"><CountdownTimer targetDate={targetTicketReward.activatedAt} /></div>
+                          <div className="scale-125 origin-center"><CountdownTimer targetDate={targetTicketReward.activatedAt} onComplete={() => window.location.reload()} /></div>
                         </>
                       ) : (
                         <>
