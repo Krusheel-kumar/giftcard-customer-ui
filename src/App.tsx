@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
-import { Gift, Lock, MapPin, Phone, ChevronsRight, Check, Star, Instagram } from 'lucide-react';
+import { Gift, Lock, MapPin, Phone, ChevronsRight, Check, Star } from 'lucide-react';
 import './index.css';
 
 import wordmark from './assets/Horizontal Wordmark with Emblem.png';
@@ -564,7 +564,7 @@ export default function App() {
                              <Star size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Review our store
                            </a>
                            <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/70 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 group">
-                             <Instagram size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Follow the journey
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 group-hover:text-[#D4B030] transition-colors"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> Follow the journey
                            </a>
                          </div>
                        </div>
@@ -748,7 +748,7 @@ export default function App() {
                   <Star size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Review our store
                 </a>
                 <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/80 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 mb-6 group">
-                  <Instagram size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Follow the journey
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 group-hover:text-[#D4B030] transition-colors"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> Follow the journey
                 </a>
                 
                 <button onClick={() => setStep('landing')} className="text-white/30 font-medium text-[9px] md:text-[10px] hover:text-white/80 transition-colors py-3 uppercase tracking-[0.25em]">
