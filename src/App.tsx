@@ -542,7 +542,25 @@ export default function App() {
 
                 {/* Connected Journey Timeline */}
                 <div className="flex flex-col max-w-[480px] mx-auto relative z-10 px-4 md:px-0">
-                  {displayRewards.map((reward, i) => {
+                  {hasGraduated ? (
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[#111] text-white rounded-3xl p-8 shadow-2xl border border-[#F4D160]/30 relative overflow-hidden mt-4">
+                       <div className="absolute top-[-20%] right-[-10%] w-40 h-40 bg-[#F4D160] opacity-20 blur-[60px] rounded-full pointer-events-none"></div>
+                       <div className="relative z-10 flex flex-col items-center text-center">
+                         <span className="text-5xl mb-4 animate-bounce">👑</span>
+                         <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#D4B030] to-[#F6D365] mb-2 tracking-tight">Popobob VIP</h2>
+                         <p className="text-white/70 text-sm leading-relaxed mb-6">
+                           You've completed the full reward journey! Thank you for being a loyal customer. Drop a review and follow us to unlock early access to our upcoming secret points system!
+                         </p>
+                         <a href="https://g.page/r/your-google-link" target="_blank" rel="noreferrer" className="w-full bg-white text-black font-black text-xs tracking-widest uppercase py-4 rounded-xl mb-3 shadow-[0_0_15px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+                           ⭐ Review on Google
+                         </a>
+                         <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="w-full bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-black text-xs tracking-widest uppercase py-4 rounded-xl shadow-[0_0_15px_rgba(253,29,29,0.2)] flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+                           📸 Follow on Instagram
+                         </a>
+                       </div>
+                    </motion.div>
+                  ) : (
+                    displayRewards.map((reward, i) => {
                     const isActive = reward.status === 'ACTIVE' || (!journey && i === 0);
                     const isPending = reward.status === 'PENDING_UNLOCK';
                     const isLocked = reward.status === 'LOCKED' || (!journey && i > 0);
@@ -687,7 +705,8 @@ export default function App() {
                         </div>
                       </div>
                     );
-                  })}
+                  })
+                )}
                 </div>
               </motion.div>
             </motion.div>
