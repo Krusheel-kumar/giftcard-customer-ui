@@ -543,31 +543,43 @@ export default function App() {
                 {/* Connected Journey Timeline */}
                 <div className="flex flex-col max-w-[480px] mx-auto relative z-10 px-4 md:px-0">
                   {hasGraduated ? (
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="bg-gradient-to-b from-[#141414] to-[#0A0A0A] text-white rounded-[32px] p-8 md:p-10 shadow-[0_30px_60px_rgba(0,0,0,0.4)] border border-white/5 relative overflow-hidden mt-6 mb-12">
-                       <div className="absolute top-[-40%] right-[-30%] w-80 h-80 bg-[#D4B030] opacity-[0.06] blur-[90px] rounded-full pointer-events-none"></div>
-                       
-                       <div className="relative z-10 flex flex-col items-center text-center">
-                         <div className="mb-8">
-                           <span className="text-[#D4B030] text-[10px] md:text-xs tracking-[0.4em] uppercase font-bold opacity-90">Popobob VIP</span>
-                         </div>
-                         
-                         <h2 className="text-2xl md:text-3xl font-light text-white/95 mb-5 tracking-wide leading-tight">
-                           A journey completed.<br/>A relationship begun.
-                         </h2>
-                         
-                         <p className="text-white/40 text-[13px] md:text-sm leading-relaxed mb-10 max-w-[95%] font-light">
-                           You have completed your reward journey, but our story is just starting. Thank you for your immense loyalty. Join our inner circle below for exclusive future drops and loyalty points.
-                         </p>
-                         
-                         <div className="flex flex-col w-full gap-3">
-                           <a href="https://g.page/r/your-google-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/70 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 group">
-                             <Star size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Review our store
-                           </a>
-                           <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/70 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 group">
-                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 group-hover:text-[#D4B030] transition-colors"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> Follow the journey
-                           </a>
-                         </div>
-                       </div>
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, ease: "easeOut" }} className="relative w-full rounded-[32px] p-8 md:p-10 shadow-[0_20px_50px_rgba(244,209,96,0.15)] overflow-hidden mt-6 mb-12">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#1A1300] via-[#0F0F0F] to-[#261A00] z-0"></div>
+                      
+                      <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15], rotate: [0, 90, 0] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute top-[-20%] left-[-20%] w-64 h-64 bg-[#F4D160] blur-[80px] rounded-full z-0 pointer-events-none" />
+                      <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.25, 0.1], rotate: [0, -90, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute bottom-[-20%] right-[-20%] w-64 h-64 bg-[#FFB000] blur-[90px] rounded-full z-0 pointer-events-none" />
+
+                      <div className="relative z-10 flex flex-col items-center text-center">
+                        <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-gradient-to-r from-[#F4D160]/10 to-[#FFB000]/10 border border-[#F4D160]/20 mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(244,209,96,0.1)]">
+                          <span className="text-[#F6D365] text-[9px] md:text-[10px] tracking-[0.4em] uppercase font-black">Official VIP Member</span>
+                        </motion.div>
+                        
+                        <motion.h2 initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[#FFFDF9] to-[#F6D365] mb-5 tracking-tight drop-shadow-lg">
+                          THANK YOU
+                        </motion.h2>
+                        
+                        <motion.p initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }} className="text-white/80 text-[13px] md:text-[14px] leading-relaxed mb-10 max-w-[95%] font-medium">
+                          <span className="text-[#F6D365] font-bold">{customerName.split(' ')[0]}</span>, your loyalty means the world to us. This journey is complete, but the magic is just beginning. Connect with us below to unlock exclusive upcoming rewards and secret loyalty points!
+                        </motion.p>
+                        
+                        <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }} className="flex flex-col w-full gap-4">
+                          <a href="https://g.page/r/your-google-link" target="_blank" rel="noreferrer" className="relative w-full overflow-hidden rounded-[14px] p-[1px] group">
+                            <span className="absolute inset-0 bg-gradient-to-r from-[#F4D160] via-[#FFB000] to-[#F4D160] opacity-50 group-hover:opacity-100 transition-opacity duration-500 bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite]"></span>
+                            <div className="relative w-full bg-[#111] hover:bg-[#1A1A1A] transition-colors duration-500 rounded-[13px] py-4 md:py-5 flex items-center justify-center gap-3">
+                              <Star size={16} strokeWidth={2.5} className="text-[#F6D365]" /> 
+                              <span className="text-white font-black text-[10px] md:text-[11px] tracking-[0.15em] uppercase mt-[2px]">Claim Review Points</span>
+                            </div>
+                          </a>
+                          
+                          <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="relative w-full overflow-hidden rounded-[14px] p-[1px] group">
+                            <span className="absolute inset-0 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] opacity-50 group-hover:opacity-100 transition-opacity duration-500 bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite]"></span>
+                            <div className="relative w-full bg-[#111] hover:bg-[#1A1A1A] transition-colors duration-500 rounded-[13px] py-4 md:py-5 flex items-center justify-center gap-3">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                              <span className="text-white font-black text-[10px] md:text-[11px] tracking-[0.15em] uppercase mt-[2px]">Follow For Drops</span>
+                            </div>
+                          </a>
+                        </motion.div>
+                      </div>
                     </motion.div>
                   ) : (
                     displayRewards.map((reward, i) => {
@@ -723,38 +735,47 @@ export default function App() {
           )}
 
           {step === 'success' && hasGraduated && (
-            <motion.div key="vip_success" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 bg-[#050505] text-white relative z-[200]">
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4B030] opacity-[0.04] blur-[120px] rounded-full"></div>
-              </div>
+            <motion.div key="vip_success" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-white relative z-[200] overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#1A1300] via-[#050505] to-[#261A00] z-0"></div>
+              
+              <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.25, 0.1], rotate: [0, 90, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }} className="absolute top-[10%] left-[-10%] w-96 h-96 bg-[#F4D160] blur-[100px] rounded-full z-0 pointer-events-none" />
+              <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.2, 0.05], rotate: [0, -90, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#FFB000] blur-[120px] rounded-full z-0 pointer-events-none" />
 
               <div className="w-full max-w-md mx-auto text-center mb-12 relative z-10 flex flex-col items-center">
-                <div className="mb-10">
-                  <span className="text-[#D4B030] text-[10px] md:text-xs tracking-[0.5em] uppercase font-bold opacity-90">Popobob VIP</span>
-                </div>
+                <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="inline-flex items-center justify-center px-6 py-2 rounded-full bg-gradient-to-r from-[#F4D160]/10 to-[#FFB000]/10 border border-[#F4D160]/20 mb-10 backdrop-blur-md shadow-[0_0_30px_rgba(244,209,96,0.15)]">
+                  <span className="text-[#F6D365] text-[10px] md:text-xs tracking-[0.4em] uppercase font-black">Official VIP Member</span>
+                </motion.div>
                 
-                <h1 className="text-3xl md:text-4xl font-light text-white/95 mb-6 tracking-wide leading-tight">
+                <motion.h1 initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[#FFFDF9] to-[#F6D365] mb-6 tracking-tight leading-[1.1] drop-shadow-2xl">
                   A journey completed.<br/>A relationship begun.
-                </h1>
+                </motion.h1>
                 
-                <p className="text-white/40 font-light text-[13px] md:text-sm px-4 leading-relaxed">
-                  Thank you, {customerName.split(' ')[0]}. Customers like you are the heartbeat of Popobob. We are deeply grateful for your loyalty and look forward to serving you again.
-                </p>
+                <motion.p initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }} className="text-white/80 font-medium text-[14px] md:text-[15px] px-2 leading-relaxed">
+                  Thank you, <span className="text-[#F6D365] font-bold">{customerName.split(' ')[0]}</span>. Customers like you are the heartbeat of Popobob. We are deeply grateful for your loyalty and look forward to serving you again.
+                </motion.p>
               </div>
 
-              <div className="w-full max-w-sm mx-auto relative z-10 flex flex-col gap-3 px-2">
-                <p className="text-white/30 text-center text-[9px] md:text-[10px] uppercase tracking-[0.3em] mb-3 font-medium">Join the Inner Circle</p>
-                <a href="https://g.page/r/your-google-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/80 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 group">
-                  <Star size={16} strokeWidth={2} className="text-white/40 group-hover:text-[#D4B030] transition-colors" /> Review our store
-                </a>
-                <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="w-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/80 font-medium text-[11px] md:text-xs tracking-[0.15em] uppercase py-4 rounded-xl transition-all duration-500 flex items-center justify-center gap-3 mb-6 group">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 group-hover:text-[#D4B030] transition-colors"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> Follow the journey
+              <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }} className="w-full max-w-[320px] mx-auto relative z-10 flex flex-col gap-4">
+                <a href="https://g.page/r/your-google-link" target="_blank" rel="noreferrer" className="relative w-full overflow-hidden rounded-[14px] p-[1px] group">
+                  <span className="absolute inset-0 bg-gradient-to-r from-[#F4D160] via-[#FFB000] to-[#F4D160] opacity-50 group-hover:opacity-100 transition-opacity duration-500 bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite]"></span>
+                  <div className="relative w-full bg-[#111] hover:bg-[#1A1A1A] transition-colors duration-500 rounded-[13px] py-4 md:py-5 flex items-center justify-center gap-3">
+                    <Star size={18} strokeWidth={2.5} className="text-[#F6D365]" /> 
+                    <span className="text-white font-black text-[11px] md:text-xs tracking-[0.15em] uppercase mt-[2px]">Claim Review Points</span>
+                  </div>
                 </a>
                 
-                <button onClick={() => setStep('landing')} className="text-white/30 font-medium text-[9px] md:text-[10px] hover:text-white/80 transition-colors py-3 uppercase tracking-[0.25em]">
+                <a href="https://instagram.com/your-instagram-link" target="_blank" rel="noreferrer" className="relative w-full overflow-hidden rounded-[14px] p-[1px] group mb-4">
+                  <span className="absolute inset-0 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] opacity-50 group-hover:opacity-100 transition-opacity duration-500 bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite]"></span>
+                  <div className="relative w-full bg-[#111] hover:bg-[#1A1A1A] transition-colors duration-500 rounded-[13px] py-4 md:py-5 flex items-center justify-center gap-3">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    <span className="text-white font-black text-[11px] md:text-xs tracking-[0.15em] uppercase mt-[2px]">Follow For Drops</span>
+                  </div>
+                </a>
+                
+                <button onClick={() => setStep('landing')} className="text-white/30 font-black text-[10px] hover:text-white/80 transition-colors py-3 uppercase tracking-[0.3em]">
                   Return Home
                 </button>
-              </div>
+              </motion.div>
             </motion.div>
           )}
 
