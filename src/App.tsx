@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Gift, Lock, MapPin, Phone, ChevronsRight, Check } from 'lucide-react';
 import './index.css';
@@ -32,9 +32,8 @@ interface Reward {
   activatedAt?: string;
 }
 
-const CountdownTimer = ({ targetDate, onComplete }: { targetDate: string, onComplete?: () => void }) => {
+const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
   const [timeLeft, setTimeLeft] = useState<{ hours: number, minutes: number, seconds: number } | null>(null);
-  const [hasCompleted, setHasCompleted] = useState(false);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -47,24 +46,24 @@ const CountdownTimer = ({ targetDate, onComplete }: { targetDate: string, onComp
         });
       } else {
         setTimeLeft(null);
-        if (!hasCompleted) {
-          setHasCompleted(true);
-          onComplete?.();
-        }
+        // It reached 0. The backend cron runs every 60s. We silently request the App to refetch 
+        // without reloading the page, which stops the blinking!
+        window.dispatchEvent(new Event('trigger_refresh'));
       }
     };
     
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
+    // If we are past 0, we poll the refresh every 10 seconds silently instead of hard-reloading
+    const timer = setInterval(calculateTimeLeft, timeLeft ? 1000 : 10000);
     return () => clearInterval(timer);
-  }, [targetDate, hasCompleted, onComplete]);
+  }, [targetDate, timeLeft !== null]);
 
   if (!timeLeft) return (
     <div className="w-full flex justify-center py-4">
       <span className="font-mono tracking-wider font-bold animate-pulse text-[#1A1A1A]">Processing Unlock...</span>
     </div>
   );
-  
+
   return (
     <div className="w-full flex items-center justify-center gap-2 mt-2 mb-1">
       {/* Hours */}
@@ -129,16 +128,7 @@ export default function App() {
   const x = useMotionValue(0);
   const textOpacity = useTransform(x, [0, 140], [1, 0]);
 
-  useEffect(() => {
-    // 1. Check URL for token (Magic Link from WhatsApp)
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlToken = urlParams.get('token');
-    if (urlToken) {
-      localStorage.setItem('popobob_token', urlToken);
-      window.history.replaceState({}, document.title, window.location.pathname); // clear URL
-    }
-
-    // 2. Invisible Auth
+  const fetchJourney = useCallback(() => {
     const token = localStorage.getItem('popobob_token');
     if (token) {
       fetch(`${API}/api/rewards/me/POBFN`, {
@@ -164,6 +154,24 @@ export default function App() {
       });
     }
   }, []);
+
+  useEffect(() => {
+    // 1. Check URL for token (Magic Link from WhatsApp)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('token');
+    if (urlToken) {
+      localStorage.setItem('popobob_token', urlToken);
+      window.history.replaceState({}, document.title, window.location.pathname); // clear URL
+    }
+
+    // 2. Invisible Auth
+    fetchJourney();
+
+    // 3. Listen for silent UI updates (from CountdownTimer hitting 0)
+    const handleRefresh = () => fetchJourney();
+    window.addEventListener('trigger_refresh', handleRefresh);
+    return () => window.removeEventListener('trigger_refresh', handleRefresh);
+  }, [fetchJourney]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -661,7 +669,7 @@ export default function App() {
                                {isPending && reward.activatedAt && (
                                  <div className="w-full flex flex-col items-center justify-center mt-6 pt-4 border-t border-black/5">
                                    <span className="text-[10px] uppercase font-black tracking-widest text-[#1A1A1A]/50 bg-white/40 px-3 py-1 rounded-full mb-1 backdrop-blur-sm shadow-sm">Reward Unlocks In</span>
-                                   <CountdownTimer targetDate={reward.activatedAt} onComplete={() => window.location.reload()} />
+                                   <CountdownTimer targetDate={reward.activatedAt} />
                                  </div>
                                )}
                             </div>
@@ -743,7 +751,7 @@ export default function App() {
                       {isTicketPending && targetTicketReward?.activatedAt ? (
                         <>
                           <p className="text-[#D4B030]/80 text-[9px] font-black tracking-widest uppercase mb-2">Unlocking In</p>
-                          <div className="scale-125 origin-center"><CountdownTimer targetDate={targetTicketReward.activatedAt} onComplete={() => window.location.reload()} /></div>
+                          <div className="scale-125 origin-center"><CountdownTimer targetDate={targetTicketReward.activatedAt} /></div>
                         </>
                       ) : (
                         <>
