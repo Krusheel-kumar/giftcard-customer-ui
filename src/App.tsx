@@ -213,7 +213,7 @@ export default function App() {
       const formattedPhone = digits.length === 10 ? `91${digits}` : digits;
 
       window.configuration = {
-        widgetId: import.meta.env.VITE_MSG91_WIDGET_ID || "3668656e7541363234303538", 
+        widgetId: import.meta.env.VITE_MSG91_WIDGET_ID || "3669776c426f303734323831", 
         tokenAuth: import.meta.env.VITE_MSG91_TOKEN_AUTH || "557539Tl9kAR3zw36a7347b5P1", 
         identifier: formattedPhone,
         exposeMethods: "true",
