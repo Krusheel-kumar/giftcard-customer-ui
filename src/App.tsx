@@ -217,6 +217,8 @@ export default function App() {
         tokenAuth: import.meta.env.VITE_MSG91_TOKEN_AUTH || "557539Tl9kAR3zw36a7347b5P1", 
         identifier: formattedPhone,
         exposeMethods: "true",
+        body_1: customerName || "Pop O'Bob Customer",
+        button_1: "Verify",
         success: async (data: any) => {
           try {
             setLoading(true);
