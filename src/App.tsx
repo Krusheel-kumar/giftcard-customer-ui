@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-type Step = 'landing' | 'otp' | 'unlocking' | 'unlocked' | 'success';
+type Step = 'landing' | 'otp' | 'verified' | 'unlocking' | 'unlocked' | 'success';
 
 interface Reward {
   id: number;
@@ -252,8 +252,16 @@ export default function App() {
             }));
             
             setJourney(mappedRewards);
-              setStep('unlocking');
-              setTimeout(() => { setStep('unlocked'); setTimeout(() => { setStep('success'); }, 3500); }, 4000);
+              setStep('verified');
+              setTimeout(() => {
+                setStep('unlocking');
+                setTimeout(() => {
+                  setStep('unlocked');
+                  setTimeout(() => {
+                    setStep('success');
+                  }, 3500);
+                }, 2500);
+              }, 2000);
           } catch (err: any) {
             setError(err.message || 'Failed to verify OTP.');
           } finally {
@@ -740,28 +748,37 @@ export default function App() {
           )}
 
           
+          {step === 'verified' && (
+            <motion.div key="verified" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -20 }} className="absolute inset-0 z-[500] bg-[#FFFDF9] flex flex-col items-center justify-center p-6 text-center">
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 12, stiffness: 100, delay: 0.2 }} className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-[0_8px_30px_rgba(34,197,94,0.2)]">
+                <Check className="w-12 h-12 text-green-600" strokeWidth={3} />
+              </motion.div>
+              <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-2xl font-black text-[#1A1A1A] tracking-tight mb-2">Verified!</motion.h2>
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-black/50 font-medium">Authentication successful</motion.p>
+            </motion.div>
+          )}
+
           {step === 'unlocking' && (
-            <motion.div key="unlocking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[500] bg-black flex flex-col items-center justify-center p-6 text-center">
-              <div className="relative">
-                <div className="absolute inset-0 bg-[#B91C1C] blur-xl opacity-20 animate-pulse rounded-full"></div>
-                <div className="w-24 h-24 bg-gradient-to-br from-[#B91C1C] to-black rounded-full flex items-center justify-center border border-[#B91C1C]/30 shadow-[0_0_30px_rgba(185,28,28,0.3)] animate-pulse relative z-10">
-                  <Lock className="w-10 h-10 text-white/90" />
-                </div>
+            <motion.div key="unlocking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[500] bg-[#FFFDF9] flex flex-col items-center justify-center p-6 text-center">
+              <div className="relative w-28 h-28 flex items-center justify-center mb-8">
+                <div className="absolute inset-0 border-[6px] border-[#F4D160]/20 rounded-full"></div>
+                <div className="absolute inset-0 border-[6px] border-[#F4D160] rounded-full border-t-transparent animate-spin"></div>
+                <Gift className="w-10 h-10 text-[#1A1A1A] animate-pulse" />
               </div>
-              <h2 className="mt-8 text-xl font-bold text-white tracking-widest uppercase">Unlocking Reward...</h2>
-              <p className="mt-3 text-sm text-white/60 font-medium">Securing your exclusive POP O'BOB offer</p>
+              <h2 className="text-2xl font-black text-[#1A1A1A] tracking-tight">Getting your reward ready...</h2>
+              <p className="mt-3 text-sm text-black/50 font-medium">Securing your exclusive offer</p>
             </motion.div>
           )}
 
           {step === 'unlocked' && (
-            <motion.div key="unlocked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[500] bg-black flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-700">
-              <div className="w-24 h-24 bg-[#B91C1C]/10 rounded-full flex items-center justify-center mb-6 animate-bounce border border-[#B91C1C]/30">
-                <Check className="w-12 h-12 text-[#B91C1C]" />
-              </div>
-              <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-3">Reward Unlocked!</h2>
-              <div className="bg-[#B91C1C]/10 border border-[#B91C1C]/20 px-6 py-4 rounded-2xl max-w-xs">
-                <p className="text-[#B91C1C] font-bold text-sm uppercase tracking-widest mb-1">Status</p>
-                <p className="text-white/80 text-sm">Your secret code is ready and will be valid after 24 hours.</p>
+            <motion.div key="unlocked" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[500] bg-[#FFFDF9] flex flex-col items-center justify-center p-6 text-center">
+              <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0.6 }} className="w-28 h-28 bg-gradient-to-br from-[#F4D160] to-[#E5B820] rounded-full flex items-center justify-center mb-8 shadow-[0_15px_40px_rgba(244,209,96,0.4)]">
+                <Gift className="w-12 h-12 text-[#1A1A1A]" fill="currentColor" />
+              </motion.div>
+              <h2 className="text-[28px] font-black text-[#1A1A1A] tracking-tight mb-4">Reward Unlocked!</h2>
+              <div className="bg-white border border-[#1A1A1A]/5 px-6 py-4 rounded-2xl max-w-xs shadow-xl shadow-black/5">
+                <p className="text-[#B91C1C] font-bold text-[11px] uppercase tracking-widest mb-1.5">Action Required</p>
+                <p className="text-[#1A1A1A]/80 text-sm font-medium leading-relaxed">Your reward is ready and will be valid for use starting tomorrow.</p>
               </div>
             </motion.div>
           )}
