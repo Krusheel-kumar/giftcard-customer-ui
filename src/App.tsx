@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-type Step = 'landing' | 'otp' | 'success';
+type Step = 'landing' | 'otp' | 'unlocking' | 'unlocked' | 'success';
 
 interface Reward {
   id: number;
@@ -108,7 +108,34 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
   );
 };
 
+const UnlockingScreen = () => (
+  <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
+    <div className="relative">
+      <div className="absolute inset-0 bg-[#B91C1C] blur-xl opacity-20 animate-pulse rounded-full"></div>
+      <div className="w-24 h-24 bg-gradient-to-br from-[#B91C1C] to-black rounded-full flex items-center justify-center border border-[#B91C1C]/30 shadow-[0_0_30px_rgba(185,28,28,0.3)] animate-pulse relative z-10">
+        <Lock className="w-10 h-10 text-white/90" />
+      </div>
+    </div>
+    <h2 className="mt-8 text-xl font-bold text-white tracking-widest uppercase">Unlocking Reward...</h2>
+    <p className="mt-3 text-sm text-white/60 font-medium">Securing your exclusive POP O'BOB offer</p>
+  </div>
+);
+
+const SuccessScreen = () => (
+  <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-700">
+    <div className="w-24 h-24 bg-[#B91C1C]/10 rounded-full flex items-center justify-center mb-6 animate-bounce border border-[#B91C1C]/30">
+      <Check className="w-12 h-12 text-[#B91C1C]" />
+    </div>
+    <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-3">Reward Unlocked!</h2>
+    <div className="bg-[#B91C1C]/10 border border-[#B91C1C]/20 px-6 py-4 rounded-2xl max-w-xs">
+      <p className="text-[#B91C1C] font-bold text-sm uppercase tracking-widest mb-1">Status</p>
+      <p className="text-white/80 text-sm">Your secret code is ready and will be valid after 24 hours.</p>
+    </div>
+  </div>
+);
+
 export default function App() {
+
   const [step, setStep] = useState<Step>('landing');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -737,7 +764,35 @@ export default function App() {
             </motion.div>
           )}
 
+          
+          {step === 'unlocking' && (
+            <motion.div key="unlocking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[500] bg-black flex flex-col items-center justify-center p-6 text-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-[#B91C1C] blur-xl opacity-20 animate-pulse rounded-full"></div>
+                <div className="w-24 h-24 bg-gradient-to-br from-[#B91C1C] to-black rounded-full flex items-center justify-center border border-[#B91C1C]/30 shadow-[0_0_30px_rgba(185,28,28,0.3)] animate-pulse relative z-10">
+                  <Lock className="w-10 h-10 text-white/90" />
+                </div>
+              </div>
+              <h2 className="mt-8 text-xl font-bold text-white tracking-widest uppercase">Unlocking Reward...</h2>
+              <p className="mt-3 text-sm text-white/60 font-medium">Securing your exclusive POP O'BOB offer</p>
+            </motion.div>
+          )}
+
+          {step === 'unlocked' && (
+            <motion.div key="unlocked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[500] bg-black flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-700">
+              <div className="w-24 h-24 bg-[#B91C1C]/10 rounded-full flex items-center justify-center mb-6 animate-bounce border border-[#B91C1C]/30">
+                <Check className="w-12 h-12 text-[#B91C1C]" />
+              </div>
+              <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-3">Reward Unlocked!</h2>
+              <div className="bg-[#B91C1C]/10 border border-[#B91C1C]/20 px-6 py-4 rounded-2xl max-w-xs">
+                <p className="text-[#B91C1C] font-bold text-sm uppercase tracking-widest mb-1">Status</p>
+                <p className="text-white/80 text-sm">Your secret code is ready and will be valid after 24 hours.</p>
+              </div>
+            </motion.div>
+          )}
+
           {step === 'success' && hasGraduated && (
+
             <motion.div key="vip_success" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-white relative z-[200] overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-[#1A1300] via-[#050505] to-[#261A00] z-0"></div>
               
