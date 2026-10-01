@@ -749,36 +749,61 @@ export default function App() {
 
           
           {step === 'verified' && (
-            <motion.div key="verified" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -20 }} className="absolute inset-0 z-[500] bg-[#FFFDF9] flex flex-col items-center justify-center p-6 text-center">
-              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 12, stiffness: 100, delay: 0.2 }} className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-[0_8px_30px_rgba(34,197,94,0.2)]">
-                <Check className="w-12 h-12 text-green-600" strokeWidth={3} />
-              </motion.div>
-              <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-2xl font-black text-[#1A1A1A] tracking-tight mb-2">Verified!</motion.h2>
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-black/50 font-medium">Authentication successful</motion.p>
+            <motion.div key="verified" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -20 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden z-[200]">
+              <div className="absolute inset-0 bg-[#0F0F0F] z-0"></div>
+              <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.15, 0.05] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute w-64 h-64 bg-green-500 blur-[80px] rounded-full z-0 pointer-events-none" />
+              
+              <div className="relative z-10 flex flex-col items-center">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 12, stiffness: 100, delay: 0.2 }} className="w-24 h-24 bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                  <Check className="w-12 h-12 text-green-400" strokeWidth={3} />
+                </motion.div>
+                <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-3xl font-black text-white tracking-tight mb-2">Verified!</motion.h2>
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-white/60 font-medium">Authentication successful</motion.p>
+              </div>
             </motion.div>
           )}
 
           {step === 'unlocking' && (
-            <motion.div key="unlocking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[500] bg-[#FFFDF9] flex flex-col items-center justify-center p-6 text-center">
-              <div className="relative w-28 h-28 flex items-center justify-center mb-8">
-                <div className="absolute inset-0 border-[6px] border-[#F4D160]/20 rounded-full"></div>
-                <div className="absolute inset-0 border-[6px] border-[#F4D160] rounded-full border-t-transparent animate-spin"></div>
-                <Gift className="w-10 h-10 text-[#1A1A1A] animate-pulse" />
+            <motion.div key="unlocking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden z-[200]">
+              <div className="absolute inset-0 bg-[#0F0F0F] z-0"></div>
+              <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.05, 0.15, 0.05] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} className="absolute w-64 h-64 bg-[#F4D160] blur-[80px] rounded-full z-0 pointer-events-none" />
+              
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="relative w-28 h-28 flex items-center justify-center mb-8">
+                  <div className="absolute inset-0 border-[4px] border-white/5 rounded-full"></div>
+                  <div className="absolute inset-0 border-[4px] border-[#F4D160] rounded-full border-t-transparent animate-spin shadow-[0_0_15px_rgba(244,209,96,0.3)]"></div>
+                  <Gift className="w-10 h-10 text-[#F4D160] animate-pulse" />
+                </div>
+                <h2 className="text-2xl font-black text-white tracking-tight">Getting your reward ready...</h2>
+                <p className="mt-3 text-sm text-white/50 font-medium">Securing your exclusive offer</p>
               </div>
-              <h2 className="text-2xl font-black text-[#1A1A1A] tracking-tight">Getting your reward ready...</h2>
-              <p className="mt-3 text-sm text-black/50 font-medium">Securing your exclusive offer</p>
             </motion.div>
           )}
 
           {step === 'unlocked' && (
-            <motion.div key="unlocked" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[500] bg-[#FFFDF9] flex flex-col items-center justify-center p-6 text-center">
-              <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0.6 }} className="w-28 h-28 bg-gradient-to-br from-[#F4D160] to-[#E5B820] rounded-full flex items-center justify-center mb-8 shadow-[0_15px_40px_rgba(244,209,96,0.4)]">
-                <Gift className="w-12 h-12 text-[#1A1A1A]" fill="currentColor" />
-              </motion.div>
-              <h2 className="text-[28px] font-black text-[#1A1A1A] tracking-tight mb-4">Reward Unlocked!</h2>
-              <div className="bg-white border border-[#1A1A1A]/5 px-6 py-4 rounded-2xl max-w-xs shadow-xl shadow-black/5">
-                <p className="text-[#B91C1C] font-bold text-[11px] uppercase tracking-widest mb-1.5">Action Required</p>
-                <p className="text-[#1A1A1A]/80 text-sm font-medium leading-relaxed">Your reward is ready and will be valid for use starting tomorrow.</p>
+            <motion.div key="unlocked" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden z-[200]">
+              <div className="absolute inset-0 bg-[#0F0F0F] z-0"></div>
+              <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.25, 0.1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#F4D160] blur-[100px] rounded-full z-0 pointer-events-none" />
+              
+              <div className="relative z-10 flex flex-col items-center mt-12">
+                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0.6 }} className="w-28 h-28 bg-gradient-to-br from-[#F4D160] to-[#E5B820] rounded-full flex items-center justify-center mb-8 shadow-[0_15px_40px_rgba(244,209,96,0.4)]">
+                  <Gift className="w-14 h-14 text-[#111]" fill="currentColor" />
+                </motion.div>
+                <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-6 drop-shadow-lg">Reward Unlocked!</h2>
+                
+                <div className="bg-white/5 backdrop-blur-md border border-white/10 px-6 py-5 rounded-[20px] max-w-sm shadow-2xl relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F4D160] opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#F4D160]"></span>
+                    </span>
+                    <p className="text-[#F4D160] font-black text-[10px] md:text-[11px] uppercase tracking-[0.2em]">Action Required</p>
+                  </div>
+                  <p className="text-white/80 text-sm md:text-[15px] font-medium leading-relaxed">
+                    Your reward is ready and will be valid for use starting tomorrow.
+                  </p>
+                </div>
               </div>
             </motion.div>
           )}
