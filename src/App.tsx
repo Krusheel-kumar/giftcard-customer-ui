@@ -346,6 +346,7 @@ export default function App() {
     || displayRewards[0];
   const isTicketUsed = targetTicketReward?.status === 'REDEEMED' || targetTicketReward?.status === 'EXPIRED';
   const isTicketPending = targetTicketReward?.status === 'PENDING_UNLOCK';
+  const isWaitLocked = targetTicketReward?.status === 'ACTIVE' && targetTicketReward?.activatedAt && (new Date(targetTicketReward.activatedAt).getTime() + 24 * 60 * 60 * 1000 > new Date().getTime());
   
   const hasGraduated = journey && journey.length === 3 && journey.every(r => r.status === 'REDEEMED');
 
@@ -830,7 +831,7 @@ export default function App() {
                     isTicketUsed ? 'bg-black/50 text-white/50 border border-white/10' : 
                     'bg-white text-[#B91C1C]'
                     } text-[10px] font-black tracking-widest uppercase px-4 py-1.5 rounded-full shadow-lg`}>
-                    {isTicketPending ? 'UNLOCKS SOON' : isTicketUsed ? 'REDEEMED' : 'AVAILABLE NOW'}
+                    {isTicketPending || isWaitLocked ? 'UNLOCKS TOMORROW' : isTicketUsed ? 'REDEEMED' : 'AVAILABLE NOW'}
                   </div>
 
                   <div className="mt-6 flex flex-col flex-1 justify-end">
@@ -853,7 +854,7 @@ export default function App() {
 
                     <p className="text-white/80 text-[11px] font-medium mb-1.5">Valid at Film Nagar Outlet Only</p>
                     <p className="text-white text-[11px] font-bold mb-6 drop-shadow-sm bg-black/15 inline-block px-4 py-1.5 rounded-full">
-                      {isTicketPending ? 'Patience is a virtue' : isTicketUsed ? 'Reward Used' : 'Expires in 10 Days'}
+                      {isTicketPending || isWaitLocked ? 'Valid starting tomorrow' : isTicketUsed ? 'Reward Used' : 'Expires in 10 Days'}
                     </p>
 
                     <div className="pt-5 pb-2 border-t border-white/20">
