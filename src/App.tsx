@@ -278,7 +278,8 @@ export default function App() {
             }));
             
             setJourney(mappedRewards);
-            setStep('success');
+              setStep('unlocking');
+              setTimeout(() => { setStep('unlocked'); setTimeout(() => { setStep('success'); }, 3500); }, 4000);
           } catch (err: any) {
             setError(err.message || 'Failed to verify OTP.');
           } finally {
