@@ -214,8 +214,8 @@ export default function App() {
       const formattedPhone = digits.length === 10 ? `91${digits}` : digits;
 
       window.configuration = {
-        widgetId: import.meta.env.VITE_MSG91_WIDGET_ID || "3669776c426f303734323831", 
-        tokenAuth: import.meta.env.VITE_MSG91_TOKEN_AUTH || "557539Tl9kAR3zw36a7347b5P1", 
+        widgetId: import.meta.env.VITE_MSG91_WIDGET_ID || undefined, 
+        tokenAuth: import.meta.env.VITE_MSG91_TOKEN_AUTH || undefined, 
         identifier: formattedPhone,
         exposeMethods: "true",
         body_1: customerName || "Pop O'Bob Customer",
@@ -328,7 +328,7 @@ export default function App() {
       } else if (window.verifyOTP) {
         window.verifyOTP(otpCode);
       } else {
-        throw new Error('MSG91 OTP Service unavailable. Use 1234 to test.');
+        throw new Error('OTP service is currently unavailable. Please try again.');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to verify OTP.');
