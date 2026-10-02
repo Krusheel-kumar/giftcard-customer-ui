@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-type Step = 'landing' | 'otp' | 'verified' | 'unlocking' | 'unlocked' | 'success';
+type Step = 'landing' | 'otp' | 'processing' | 'verified' | 'unlocking' | 'unlocked' | 'success';
 
 interface Reward {
   id: number;
@@ -300,16 +300,25 @@ export default function App() {
     setLoading(true);
 
     try {
-      if (otpCode === '1234') {
+      if (import.meta.env.DEV && otpCode === '1234') {
         // MOCK SUCCESS FOR TESTING
-        await new Promise(resolve => setTimeout(resolve, 800)); // simulate network delay
+        setStep('processing');
+        await new Promise(resolve => setTimeout(resolve, 2000));
         setJourney([
           { id: 1, sequence: 1, name: 'Welcome Reward', status: 'ACTIVE', couponCode: 'POP-TEST-1234' },
           { id: 2, sequence: 2, name: '20% OFF', status: 'LOCKED' },
-          { id: 3, sequence: 3, name: 'Boba + Free Food', status: 'LOCKED' },
-          { id: 4, sequence: 4, name: 'Free Boba', status: 'LOCKED' }
+          { id: 3, sequence: 3, name: 'Free Boba', status: 'LOCKED' }
         ]);
-        setStep('success');
+        setStep('verified');
+        setTimeout(() => {
+          setStep('unlocking');
+          setTimeout(() => {
+            setStep('unlocked');
+            setTimeout(() => {
+              setStep('success');
+            }, 3500);
+          }, 2500);
+        }, 2000);
         setLoading(false);
         return;
       }
@@ -748,62 +757,82 @@ export default function App() {
           )}
 
           
+          {step === 'processing' && (
+            <motion.div key="processing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative z-[200] bg-[#FFFDF9]">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="flex flex-col items-center">
+                <div className="relative w-16 h-16 mb-8 flex items-center justify-center">
+                   <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="absolute inset-0 rounded-full border-[3px] border-black/10 border-t-[#111]" />
+                </div>
+                <h2 className="text-2xl font-black text-[#111] tracking-tight mb-2">Verifying credentials</h2>
+                <p className="text-black/50 text-[11px] font-black uppercase tracking-widest">Authenticating securely with Pop O'Bob...</p>
+              </motion.div>
+            </motion.div>
+          )}
+
           {step === 'verified' && (
-            <motion.div key="verified" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -20 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden z-[200]">
-              <div className="absolute inset-0 bg-[#0F0F0F] z-0"></div>
-              <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.15, 0.05] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute w-64 h-64 bg-green-500 blur-[80px] rounded-full z-0 pointer-events-none" />
-              
-              <div className="relative z-10 flex flex-col items-center">
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 12, stiffness: 100, delay: 0.2 }} className="w-24 h-24 bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                  <Check className="w-12 h-12 text-green-400" strokeWidth={3} />
-                </motion.div>
-                <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-3xl font-black text-white tracking-tight mb-2">Verified!</motion.h2>
-                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-white/60 font-medium">Authentication successful</motion.p>
-              </div>
+            <motion.div key="verified" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative z-[200] bg-[#FFFDF9]">
+              <motion.div initial={{ scale: 0.95, opacity: 0, filter: 'blur(4px)' }} animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }} transition={{ type: "spring", damping: 25, stiffness: 120 }} className="flex flex-col items-center">
+                <div className="w-20 h-20 bg-[#F4D160]/15 rounded-full flex items-center justify-center mb-6">
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.15, damping: 15, stiffness: 150 }}>
+                    <Check className="w-8 h-8 text-[#D4AF37]" strokeWidth={3} />
+                  </motion.div>
+                </div>
+                <h2 className="text-3xl font-black text-[#111] tracking-tight mb-2">Verified</h2>
+                <p className="text-[#D4AF37] text-[11px] font-black uppercase tracking-widest">Authentication successful</p>
+              </motion.div>
             </motion.div>
           )}
 
           {step === 'unlocking' && (
-            <motion.div key="unlocking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden z-[200]">
-              <div className="absolute inset-0 bg-[#0F0F0F] z-0"></div>
-              <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.05, 0.15, 0.05] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} className="absolute w-64 h-64 bg-[#F4D160] blur-[80px] rounded-full z-0 pointer-events-none" />
-              
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="relative w-28 h-28 flex items-center justify-center mb-8">
-                  <div className="absolute inset-0 border-[4px] border-white/5 rounded-full"></div>
-                  <div className="absolute inset-0 border-[4px] border-[#F4D160] rounded-full border-t-transparent animate-spin shadow-[0_0_15px_rgba(244,209,96,0.3)]"></div>
-                  <Gift className="w-10 h-10 text-[#F4D160] animate-pulse" />
+            <motion.div key="unlocking" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative z-[200] bg-[#FFFDF9]">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="flex flex-col items-center">
+                <div className="relative w-16 h-16 mb-8 flex items-center justify-center">
+                   <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }} className="absolute inset-0 rounded-full border-[3px] border-black/10 border-t-[#D4AF37]" />
+                   <Gift className="w-6 h-6 text-[#D4AF37]" strokeWidth={2} />
                 </div>
-                <h2 className="text-2xl font-black text-white tracking-tight">Getting your reward ready...</h2>
-                <p className="mt-3 text-sm text-white/50 font-medium">Securing your exclusive offer</p>
-              </div>
+                <h2 className="text-2xl font-black text-[#111] tracking-tight mb-2">Preparing your reward</h2>
+                <p className="text-black/50 text-[11px] font-black uppercase tracking-widest animate-pulse">Securing your exclusive offer...</p>
+              </motion.div>
             </motion.div>
           )}
 
           {step === 'unlocked' && (
-            <motion.div key="unlocked" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden z-[200]">
-              <div className="absolute inset-0 bg-[#0F0F0F] z-0"></div>
-              <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.25, 0.1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#F4D160] blur-[100px] rounded-full z-0 pointer-events-none" />
+            <motion.div key="unlocked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="w-full min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center relative z-[200] bg-[#FFFDF9] overflow-hidden">
               
-              <div className="relative z-10 flex flex-col items-center mt-12">
-                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0.6 }} className="w-28 h-28 bg-gradient-to-br from-[#F4D160] to-[#E5B820] rounded-full flex items-center justify-center mb-8 shadow-[0_15px_40px_rgba(244,209,96,0.4)]">
-                  <Gift className="w-14 h-14 text-[#111]" fill="currentColor" />
-                </motion.div>
-                <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-6 drop-shadow-lg">Reward Unlocked!</h2>
+              {/* Subtle Expanding Rings (Success Ripple) */}
+              <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 2.5, opacity: [0, 0.15, 0] }} transition={{ duration: 2.5, ease: "easeOut" }} className="absolute w-64 h-64 border border-[#D4AF37] rounded-full pointer-events-none" />
+              <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 3.5, opacity: [0, 0.08, 0] }} transition={{ duration: 3, delay: 0.2, ease: "easeOut" }} className="absolute w-64 h-64 border border-[#D4AF37] rounded-full pointer-events-none" />
+              
+              <div className="relative z-10 flex flex-col items-center w-full max-w-sm">
                 
-                <div className="bg-white/5 backdrop-blur-md border border-white/10 px-6 py-5 rounded-[20px] max-w-sm shadow-2xl relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <span className="relative flex h-2.5 w-2.5">
+                {/* Premium Metallic Medallion (Physical Coin look) */}
+                <motion.div initial={{ y: 20, opacity: 0, rotateY: 90 }} animate={{ y: 0, opacity: 1, rotateY: 0 }} transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.1 }} className="relative w-28 h-28 rounded-full flex items-center justify-center mb-10 shadow-[0_20px_50px_rgba(212,175,55,0.25)] perspective-1000">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#F6D365] via-[#F4D160] to-[#D4AF37] rounded-full z-0"></div>
+                  <div className="absolute inset-[2px] bg-gradient-to-t from-black/10 to-transparent rounded-full z-0 pointer-events-none"></div>
+                  <div className="absolute inset-[1px] rounded-full border border-white/50 z-0 pointer-events-none"></div>
+                  <Gift className="w-12 h-12 text-[#111] z-10 drop-shadow-sm" strokeWidth={2} />
+                </motion.div>
+                
+                <motion.h2 initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", damping: 25, stiffness: 200, delay: 0.3 }} className="text-4xl md:text-5xl font-black text-[#111] tracking-tighter mb-10">Reward Unlocked</motion.h2>
+                
+                {/* Dark Luxury Card (VIP Black Card style) */}
+                <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", damping: 25, stiffness: 200, delay: 0.4 }} className="bg-[#111] backdrop-blur-2xl border border-white/10 px-7 py-7 rounded-[28px] shadow-[0_30px_60px_rgba(0,0,0,0.2)] w-full relative overflow-hidden group">
+                  {/* Subtle Top Lighting Edge */}
+                  <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#F4D160]/40 to-transparent"></div>
+                  {/* Shimmer Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F4D160] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#F4D160]"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F4D160]"></span>
                     </span>
-                    <p className="text-[#F4D160] font-black text-[10px] md:text-[11px] uppercase tracking-[0.2em]">Action Required</p>
+                    <p className="text-[#F4D160] font-black text-[11px] uppercase tracking-[0.25em]">Action Required</p>
                   </div>
-                  <p className="text-white/80 text-sm md:text-[15px] font-medium leading-relaxed">
-                    Your reward is ready and will be valid for use starting tomorrow.
+                  <p className="text-white/95 text-[15px] md:text-base leading-relaxed font-bold">
+                    Your reward is securely saved. It will be valid for use starting tomorrow.
                   </p>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           )}
